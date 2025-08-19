@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MytischiTracker - Habit Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {},
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        
+        .streak-counter {
+            color: #6b7280;
+            font-weight: 600;
+        }
+        
+        .habit-status-completed {
+            color: #000000;
+        }
+        
+        .habit-status-failed {
+            color: #6b7280;
+        }
+        
+        .habit-status-empty {
+            color: #9ca3af;
+        }
+        
+        .dark .streak-counter {
+            color: #9ca3af;
+        }
+        
+        .dark .habit-status-completed {
+            color: #ffffff;
+        }
+        
+        .dark .habit-status-failed {
+            color: #9ca3af;
+        }
+        
+        .dark .habit-status-empty {
+            color: #6b7280;
+        }
+
+        .auth-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .dark .auth-form {
+            background: rgba(0, 0, 0, 0.95);
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen bg-white text-black">
+        <!-- Auth Screen -->
+        <div id="authScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-black">
+            <div class="auth-form p-8 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-md">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">MytischiTracker</h1>
+                    <p class="text-gray-600 dark:text-gray-400">Track your habits across all devices</p>
+                </div>
+                
+                <!-- Login Form -->
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                        <input type="email" id="loginEmail" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                        <input type="password" id="loginPassword" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                        Sign In
+                    </button>
+                </form>
+                
+                <div class="text-center mt-6">
+                    <button id="showRegister" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm">
+                        Don't have an account? Sign up
+                    </button>
+                </div>
+                
+                <!-- Register Form -->
+                <form id="registerForm" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                        <input type="email" id="registerEmail" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                        <input type="password" id="registerPassword" required minlength="6" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="text-center mt-6">
+                    <button id="showLogin" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm hidden">
+                        Already have an account? Sign in
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="mainApp" class="hidden">
+            <div class="container mx-auto px-4 py-8">
+                <!-- Header -->
+                <header class="flex justify-between items-center mb-8">
+                    <!-- Title -->
+                    <div class="text-2xl font-bold">
+                        MytischiTracker
+                    </div>
+
+                    <!-- Time and Date -->
+                    <div class="text-center">
+                        <div id="currentTime" class="text-xl font-bold mb-1"></div>
+                        <div id="currentDate" class="text-sm opacity-80"></div>
+                    </div>
+
+                    <!-- User Menu -->
+                    <div class="flex items-center space-x-4">
+                        <span id="userEmail" class="text-sm text-gray-600 dark:text-gray-400"></span>
+                        <button id="themeToggle" class="px-4 py-2 border border-current hover:bg-opacity-20 hover:bg-current transition-colors rounded">
+                            [ ] Light
+                        </button>
+                        <button id="signOutBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-sm">
+                            Sign Out
+                        </button>
+                    </div>
+                </header>
+
+                <div class="mt-8 space-y-6">
+                    <!-- Quick Mark Today - Top -->
+                    <div id="quickMarkToday" class="border border-gray-300 p-4 rounded-lg mb-4">
+                        <h3 class="text-lg font-bold mb-3 text-center">Quick Mark Today</h3>
+                        <div id="quickMarkContent" class="text-center">
+                            <p class="text-lg opacity-60">No habits to track. Add your first habit below!</p>
+                        </div>
+                    </div>
+
+                    <!-- Habit Form - Below Quick Mark Today -->
+                    <div id="habitForm" class="border border-gray-300 p-6 rounded-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold">
+                                Add New Habit
+                            </h2>
+                            <button id="toggleForm" class="px-3 py-1 border border-current hover:bg-opacity-20 hover:bg-current transition-colors rounded text-sm">
+                                [-] Hide
+                            </button>
+                        </div>
+                        
+                        <div id="formContent">
+                            <form id="habitFormElement" class="space-y-4">
+                                <div>
+                                    <label for="habitName" class="block mb-2">
+                                        Habit name:
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="habitName"
+                                        class="w-full p-3 border border-gray-300 bg-transparent focus:outline-none focus:ring-2 focus:ring-gray-500 rounded text-black"
+                                        placeholder="e.g., Morning exercise"
+                                        maxlength="50"
+                                        required
+                                    />
+                                </div>
+                                
+                                <button
+                                    type="submit"
+                                    class="w-full p-3 bg-black hover:bg-gray-800 text-white rounded transition-colors"
+                                >
+                                    [+] Add Habit
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Habit Calendar - Bottom -->
+                    <div id="habitCalendar" class="border border-gray-300 p-6 rounded-lg">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold">
+                                Habit Calendar
+                            </h2>
+                            <button id="toggleCalendar" class="px-3 py-1 border border-current hover:bg-opacity-20 hover:bg-current transition-colors rounded text-sm">
+                                [-] Hide
+                            </button>
+                        </div>
+                        
+                        <div id="calendarContent" class="text-center">
+                            <p class="text-lg">
+                                No habits to track. Add your first habit above!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration - Replace with your own config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCW3uIXyrAfmJqu0eAy_y-r9dWv-Iy9t5I",
+            authDomain: "mytischi-tracker.firebaseapp.com",
+            projectId: "mytischi-tracker",
+            storageBucket: "mytischi-tracker.appspot.com",
+            messagingSenderId: "1062971052458",
+            appId: "1:1062971052458:web:a8a2a9d4d8b156b2941bd3"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        class MytischiTracker {
+            constructor() {
+                this.habits = [];
+                this.isDarkMode = localStorage.getItem('isDarkMode') !== 'false';
+                this.currentDate = new Date();
+                this.isCalendarVisible = true;
+                this.isFormVisible = true;
+                this.currentUser = null;
+                
+                this.init();
+            }
+
+            init() {
+                this.setupAuthListeners();
+                this.setupEventListeners();
+                this.applyTheme();
+            }
+
+            setupAuthListeners() {
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        this.currentUser = user;
+                        this.showMainApp();
+                        this.loadHabits();
+                        this.updateTime();
+                        this.renderQuickMark();
+                        this.renderCalendar();
+                        setInterval(() => this.updateTime(), 1000);
+                    } else {
+                        this.currentUser = null;
+                        this.showAuthScreen();
+                    }
+                });
+            }
+
+            setupEventListeners() {
+                // Auth events
+                document.getElementById('loginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.signIn();
+                });
+
+                document.getElementById('registerForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.signUp();
+                });
+
+                document.getElementById('showRegister').addEventListener('click', () => {
+                    this.toggleAuthForms();
+                });
+
+                document.getElementById('showLogin').addEventListener('click', () => {
+                    this.toggleAuthForms();
+                });
+
+                document.getElementById('signOutBtn').addEventListener('click', () => {
+                    this.signOut();
+                });
+
+                // App events
+                document.getElementById('themeToggle').addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+
+                document.getElementById('habitFormElement').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addHabit();
+                });
+
+                document.getElementById('toggleCalendar').addEventListener('click', () => {
+                    this.toggleCalendar();
+                });
+
+                document.getElementById('toggleForm').addEventListener('click', () => {
+                    this.toggleForm();
+                });
+            }
+
+            async signIn() {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                try {
+                    await auth.signInWithEmailAndPassword(email, password);
+                } catch (error) {
+                    alert('Sign in failed: ' + error.message);
+                }
+            }
+
+            async signUp() {
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                
+                try {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                } catch (error) {
+                    alert('Sign up failed: ' + error.message);
+                }
+            }
+
+            async signOut() {
+                try {
+                    await auth.signOut();
+                } catch (error) {
+                    alert('Sign out failed: ' + error.message);
+                }
+            }
+
+            toggleAuthForms() {
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                const showRegister = document.getElementById('showRegister');
+                const showLogin = document.getElementById('showLogin');
+                
+                if (loginForm.classList.contains('hidden')) {
+                    loginForm.classList.remove('hidden');
+                    registerForm.classList.add('hidden');
+                    showRegister.classList.remove('hidden');
+                    showLogin.classList.add('hidden');
+                } else {
+                    loginForm.classList.add('hidden');
+                    registerForm.classList.remove('hidden');
+                    showRegister.classList.add('hidden');
+                    showLogin.classList.remove('hidden');
+                }
+            }
+
+            showMainApp() {
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                document.getElementById('userEmail').textContent = this.currentUser.email;
+            }
+
+            showAuthScreen() {
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('mainApp').classList.add('hidden');
+                this.habits = [];
+                this.renderQuickMark();
+                this.renderCalendar();
+            }
+
+            async loadHabits() {
+                if (!this.currentUser) return;
+                
+                try {
+                    const snapshot = await db.collection('users').doc(this.currentUser.uid).collection('habits').get();
+                    this.habits = [];
+                    snapshot.forEach(doc => {
+                        this.habits.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    this.renderQuickMark();
+                    this.renderCalendar();
+                } catch (error) {
+                    console.error('Error loading habits:', error);
+                }
+            }
+
+            async saveHabits() {
+                if (!this.currentUser) return;
+                
+                try {
+                    const userRef = db.collection('users').doc(this.currentUser.uid);
+                    const habitsRef = userRef.collection('habits');
+                    
+                    // Clear existing habits
+                    const snapshot = await habitsRef.get();
+                    snapshot.forEach(doc => doc.ref.delete());
+                    
+                    // Add new habits
+                    for (const habit of this.habits) {
+                        await habitsRef.doc(habit.id).set({
+                            name: habit.name,
+                            createdAt: habit.createdAt,
+                            data: habit.data
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error saving habits:', error);
+                }
+            }
+
+            toggleTheme() {
+                this.isDarkMode = !this.isDarkMode;
+                localStorage.setItem('isDarkMode', this.isDarkMode);
+                this.applyTheme();
+            }
+
+            applyTheme() {
+                const app = document.getElementById('app');
+                const themeToggle = document.getElementById('themeToggle');
+                const root = document.documentElement;
+                
+                if (this.isDarkMode) {
+                    root.classList.add('dark');
+                    app.classList.remove('bg-white', 'text-black');
+                    app.classList.add('bg-black', 'text-white');
+                    themeToggle.textContent = '[#] Dark';
+                } else {
+                    root.classList.remove('dark');
+                    app.classList.remove('bg-black', 'text-white');
+                    app.classList.add('bg-white', 'text-black');
+                    themeToggle.textContent = '[ ] Light';
+                }
+            }
+
+            updateTime() {
+                const now = new Date();
+                const timeElement = document.getElementById('currentTime');
+                const dateElement = document.getElementById('currentDate');
+                
+                timeElement.textContent = now.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                dateElement.textContent = now.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+
+            toggleCalendar() {
+                this.isCalendarVisible = !this.isCalendarVisible;
+                const toggleBtn = document.getElementById('toggleCalendar');
+                toggleBtn.textContent = this.isCalendarVisible ? '[-] Hide' : '[+] Show';
+                this.renderCalendar();
+            }
+
+            toggleForm() {
+                this.isFormVisible = !this.isFormVisible;
+                const toggleBtn = document.getElementById('toggleForm');
+                const formContent = document.getElementById('formContent');
+                toggleBtn.textContent = this.isFormVisible ? '[-] Hide' : '[+] Show';
+                
+                if (this.isFormVisible) {
+                    formContent.style.display = 'block';
+                } else {
+                    formContent.style.display = 'none';
+                }
+            }
+
+            async addHabit() {
+                const input = document.getElementById('habitName');
+                const habitName = input.value.trim();
+                
+                if (habitName) {
+                    const habit = {
+                        id: Date.now().toString(),
+                        name: habitName,
+                        createdAt: new Date().toISOString(),
+                        data: {}
+                    };
+                    
+                    this.habits.push(habit);
+                    await this.saveHabits();
+                    this.renderQuickMark();
+                    this.renderCalendar();
+                    
+                    input.value = '';
+                }
+            }
+
+            async deleteHabit(habitId) {
+                this.habits = this.habits.filter(h => h.id !== habitId);
+                await this.saveHabits();
+                this.renderQuickMark();
+                this.renderCalendar();
+            }
+
+            async updateHabitProgress(habitId, dateKey, completed) {
+                const habit = this.habits.find(h => h.id === habitId);
+                if (habit) {
+                    habit.data[dateKey] = completed;
+                    await this.saveHabits();
+                    this.renderQuickMark();
+                    this.renderCalendar();
+                }
+            }
+
+            markToday(habit) {
+                const today = new Date();
+                const todayKey = today.toISOString().split('T')[0];
+                const currentStatus = habit.data[todayKey];
+                const newStatus = currentStatus === null ? true : !currentStatus;
+                this.updateHabitProgress(habit.id, todayKey, newStatus);
+            }
+
+            calculateStreak(habit) {
+                const today = new Date();
+                let streak = 0;
+                let currentDate = new Date(today);
+                
+                while (true) {
+                    const dateKey = currentDate.toISOString().split('T')[0];
+                    const status = habit.data[dateKey];
+                    
+                    if (status === true) {
+                        streak++;
+                        currentDate.setDate(currentDate.getDate() - 1);
+                    } else {
+                        break;
+                    }
+                }
+                
+                return streak;
+            }
+
+            getWeeklyProgress(habit) {
+                const today = new Date();
+                const days = [];
+                let completed = 0;
+                
+                // Get last 7 days
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - i);
+                    const dateKey = date.toISOString().split('T')[0];
+                    const status = habit.data[dateKey];
+                    const isCompleted = status === true;
+                    days.push(isCompleted);
+                    if (isCompleted) completed++;
+                }
+                
+                return { completed, total: 7, days };
+            }
+
+            renderQuickMark() {
+                const quickMarkContent = document.getElementById('quickMarkContent');
+                
+                if (this.habits.length === 0) {
+                    quickMarkContent.innerHTML = `
+                        <p class="text-lg opacity-60">No habits to track. Add your first habit below!</p>
+                    `;
+                    return;
+                }
+
+                let html = '<div class="space-y-3">';
+                
+                this.habits.forEach(habit => {
+                    const todayStatus = habit.data[new Date().toISOString().split('T')[0]];
+                    const weeklyProgress = this.getWeeklyProgress(habit);
+                    
+                    html += `
+                        <div class="flex flex-col items-center space-y-2 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <!-- Habit name and today button -->
+                            <div class="flex items-center space-x-3">
+                                <span class="text-sm font-medium">${habit.name}</span>
+                                <button
+                                    onclick="tracker.markToday(${JSON.stringify(habit).replace(/"/g, '&quot;')})"
+                                    class="px-3 py-1 border rounded text-xs transition-colors ${
+                                        todayStatus === true 
+                                            ? 'bg-black text-white border-black' 
+                                            : 'border-gray-400 hover:bg-gray-100'
+                                    }"
+                                >
+                                    Today: ${this.getStatusSymbol(todayStatus)}
+                                </button>
+                            </div>
+                            
+                            <!-- Weekly progress bar -->
+                            <div class="w-full max-w-xs">
+                                <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                                    <span>Week: ${weeklyProgress.completed}/${weeklyProgress.total}</span>
+                                    <span>${Math.round((weeklyProgress.completed / weeklyProgress.total) * 100)}%</span>
+                                </div>
+                                <div class="flex space-x-1">
+                                    ${weeklyProgress.days.map((day, index) => `
+                                        <div
+                                            class="flex-1 h-2 rounded ${
+                                                day 
+                                                    ? 'bg-black dark:bg-white' 
+                                                    : 'bg-gray-200 dark:bg-gray-700'
+                                            }"
+                                            title="Day ${index + 1}: ${day ? 'Completed' : 'Not completed'}"
+                                        ></div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                quickMarkContent.innerHTML = html;
+            }
+
+            getCalendarDays() {
+                const year = this.currentDate.getFullYear();
+                const month = this.currentDate.getMonth();
+                
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                
+                const startDate = new Date(firstDay);
+                startDate.setDate(startDate.getDate() - firstDay.getDay());
+                
+                const endDate = new Date(lastDay);
+                endDate.setDate(endDate.getDate() + (6 - lastDay.getDay()));
+                
+                const days = [];
+                const current = new Date(startDate);
+                
+                while (current <= endDate) {
+                    days.push({
+                        date: new Date(current),
+                        dayOfMonth: current.getDate(),
+                        isCurrentMonth: current.getMonth() === month,
+                        isToday: current.toDateString() === new Date().toDateString()
+                    });
+                    current.setDate(current.getDate() + 1);
+                }
+                
+                return days;
+            }
+
+            renderCalendar() {
+                const calendarContent = document.getElementById('calendarContent');
+                
+                if (this.habits.length === 0) {
+                    calendarContent.innerHTML = `
+                        <p class="text-lg">
+                            No habits to track. Add your first habit above!
+                        </p>
+                    `;
+                    return;
+                }
+
+                if (!this.isCalendarVisible) {
+                    calendarContent.innerHTML = `
+                        <p class="text-lg opacity-60">
+                            Calendar is hidden. Click [+] Show to view.
+                        </p>
+                    `;
+                    return;
+                }
+
+                const calendarDays = this.getCalendarDays();
+                const monthName = this.currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+                let html = `
+                    <div class="mb-6 text-center">
+                        <h3 class="text-lg font-bold">${monthName}</h3>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <div class="min-w-max">
+                            <!-- Header with habit names and streaks -->
+                            <div class="grid grid-cols-8 gap-1 mb-2">
+                                <div class="p-2 font-bold text-center text-sm">Date</div>
+                `;
+
+                this.habits.forEach(habit => {
+                    const streak = this.calculateStreak(habit);
+                    html += `
+                        <div class="p-2 text-center text-sm min-w-[100px]">
+                            <div class="font-bold mb-1">${habit.name}</div>
+                            <div class="text-xs streak-counter mb-1">
+                                [*] ${streak} day${streak !== 1 ? 's' : ''}
+                            </div>
+                            <button
+                                onclick="tracker.deleteHabit('${habit.id}')"
+                                class="text-xs text-gray-500 hover:text-gray-700"
+                                title="Delete habit"
+                            >
+                                [X]
+                            </button>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+
+                // Calendar days - Horizontal rows
+                calendarDays.forEach(day => {
+                    html += `
+                        <div class="grid grid-cols-8 gap-1">
+                            <div class="p-1 text-center text-xs border-r border-gray-300 ${
+                                day.isToday ? 'font-bold bg-gray-400' : ''
+                            } ${!day.isCurrentMonth ? 'opacity-50' : ''}">
+                                ${day.dayOfMonth}
+                            </div>
+                    `;
+
+                    this.habits.forEach(habit => {
+                        const dateKey = day.date.toISOString().split('T')[0];
+                        const status = habit.data[dateKey];
+                        const statusClass = status === true ? 'habit-status-completed' : 
+                                          status === false ? 'habit-status-failed' : 'habit-status-empty';
+                        const symbol = this.getStatusSymbol(status);
+                        
+                        html += `
+                            <div class="p-1 text-center border-r border-gray-300 min-w-[100px]">
+                                <button
+                                    onclick="tracker.updateHabitProgress('${habit.id}', '${dateKey}', ${status === null ? 'true' : !status})"
+                                    class="w-6 h-6 flex items-center justify-center hover:bg-opacity-20 hover:bg-current transition-colors rounded ${statusClass}"
+                                    ${!day.isCurrentMonth ? 'disabled' : ''}
+                                >
+                                    ${symbol}
+                                </button>
+                            </div>
+                        `;
+                    });
+
+                    html += `</div>`;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="mt-6 text-center text-sm">
+                        <div class="flex justify-center space-x-6">
+                            <div class="flex items-center space-x-2">
+                                <span class="habit-status-completed">X</span>
+                                <span>Completed</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="habit-status-failed">O</span>
+                                <span>Failed</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="habit-status-empty">.</span>
+                                <span>Empty</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="streak-counter">[*]</span>
+                                <span>Current Streak</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                calendarContent.innerHTML = html;
+            }
+
+            getStatusSymbol(status) {
+                if (status === true) return 'X';
+                if (status === false) return 'O';
+                return '.';
+            }
+        }
+
+        // Initialize application
+        const tracker = new MytischiTracker();
+    </script>
+</body>
+</html>

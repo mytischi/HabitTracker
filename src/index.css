@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    margin: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+}
+
+@layer components {
+  .streak-counter {
+    @apply text-gray-600 dark:text-gray-400 font-semibold;
+  }
+  
+  .habit-status-completed {
+    @apply text-black dark:text-white;
+  }
+  
+  .habit-status-failed {
+    @apply text-gray-600 dark:text-gray-400;
+  }
+  
+  .habit-status-empty {
+    @apply text-gray-400 dark:text-gray-600;
+  }
+}
