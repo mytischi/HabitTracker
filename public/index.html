@@ -585,8 +585,8 @@
                                     onclick="tracker.markToday(${JSON.stringify(habit).replace(/"/g, '&quot;')})"
                                     class="px-3 py-1 border rounded text-xs transition-colors ${
                                         todayStatus === true 
-                                            ? 'bg-black text-white border-black' 
-                                            : 'border-gray-400 hover:bg-gray-100'
+                                            ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white' 
+                                            : 'border-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'
                                     }"
                                 >
                                     Today: ${this.getStatusSymbol(todayStatus)}
@@ -728,7 +728,7 @@
                             <div class="p-1 text-center border-r border-gray-300 min-w-[100px]">
                                 <button
                                     onclick="tracker.updateHabitProgress('${habit.id}', '${dateKey}', ${status === null ? 'true' : !status})"
-                                    class="w-6 h-6 flex items-center justify-center hover:bg-opacity-20 hover:bg-current transition-colors rounded ${statusClass}"
+                                    class="w-6 h-6 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded ${statusClass}"
                                     ${!day.isCurrentMonth ? 'disabled' : ''}
                                 >
                                     ${symbol}
