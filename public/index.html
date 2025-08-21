@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MytischiTracker - Habit Tracker</title>
+    <title>Habit Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -70,7 +70,7 @@
         <div id="authScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-black">
             <div class="auth-form p-8 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-md">
                 <div class="text-center mb-8">
-                    <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">MytischiTracker</h1>
+                    <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Habit Tracker</h1>
                     <p class="text-gray-600 dark:text-gray-400">Track your habits across all devices</p>
                 </div>
                 
@@ -123,15 +123,15 @@
             <div class="container mx-auto px-4 py-8">
                 <!-- Header -->
                 <header class="flex justify-between items-center mb-8">
-                    <!-- Title -->
-                    <div class="text-2xl font-bold">
-                        MytischiTracker
-                    </div>
-
-                    <!-- Time and Date -->
-                    <div class="text-center">
-                        <div id="currentTime" class="text-xl font-bold mb-1"></div>
-                        <div id="currentDate" class="text-sm opacity-80"></div>
+                    <!-- Title and Time -->
+                    <div>
+                        <div class="text-2xl font-bold mb-2">
+                            Habit Tracker
+                        </div>
+                        <div class="text-sm opacity-80">
+                            <div id="currentTime" class="font-bold"></div>
+                            <div id="currentDate"></div>
+                        </div>
                     </div>
 
                     <!-- User Menu -->
