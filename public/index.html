@@ -136,11 +136,10 @@
 
                     <!-- User Menu -->
                     <div class="flex items-center space-x-4">
-                        <span id="userEmail" class="text-sm text-gray-600 dark:text-gray-400"></span>
-                        <button id="themeToggle" class="px-4 py-2 border border-current hover:bg-opacity-20 hover:bg-current transition-colors rounded">
+                        <button id="themeToggle" class="px-3 py-1 border border-current hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded text-sm">
                             [ ] Light
                         </button>
-                        <button id="signOutBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-sm">
+                        <button id="signOutBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-sm">
                             Sign Out
                         </button>
                     </div>
@@ -161,7 +160,7 @@
                             <h2 class="text-xl font-bold">
                                 Add New Habit
                             </h2>
-                            <button id="toggleForm" class="px-3 py-1 border border-current hover:bg-opacity-20 hover:bg-current transition-colors rounded text-sm">
+                            <button id="toggleForm" class="px-3 py-1 border border-current hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded text-sm">
                                 [-] Hide
                             </button>
                         </div>
@@ -198,7 +197,7 @@
                             <h2 class="text-xl font-bold">
                                 Habit Calendar
                             </h2>
-                            <button id="toggleCalendar" class="px-3 py-1 border border-current hover:bg-opacity-20 hover:bg-current transition-colors rounded text-sm">
+                            <button id="toggleCalendar" class="px-3 py-1 border border-current hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded text-sm">
                                 [-] Hide
                             </button>
                         </div>
@@ -360,7 +359,6 @@
             showMainApp() {
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
-                document.getElementById('userEmail').textContent = this.currentUser.email;
             }
 
             showAuthScreen() {
