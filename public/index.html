@@ -62,6 +62,36 @@
         .dark .auth-form {
             background: rgba(0, 0, 0, 0.95);
         }
+
+        /* Drag & Drop styles */
+        .habit-item {
+            transition: all 0.2s ease;
+        }
+
+        .habit-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .habit-item.drag-over {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.1);
+            transform: scale(1.02);
+        }
+
+        .drag-handle {
+            font-size: 16px;
+            line-height: 1;
+            user-select: none;
+        }
+
+        .habit-item:active {
+            cursor: grabbing;
+        }
+
+        .habit-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
     </style>
 </head>
 <body>
@@ -237,6 +267,8 @@
                 this.isCalendarVisible = true;
                 this.isFormVisible = true;
                 this.currentUser = null;
+                this.draggedElement = null;
+                this.dragOverElement = null;
                 
                 this.init();
             }
@@ -577,10 +609,13 @@
                     const weeklyProgress = this.getWeeklyProgress(habit);
                     
                     html += `
-                        <div class="flex flex-col items-center space-y-2 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
-                            <!-- Habit name and today button -->
-                            <div class="flex items-center space-x-3">
-                                <span class="text-sm font-medium">${habit.name}</span>
+                        <div class="habit-item flex flex-col items-center space-y-2 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-move hover:shadow-md transition-all duration-200" draggable="true">
+                            <!-- Drag handle and habit name -->
+                            <div class="flex items-center space-x-3 w-full">
+                                <div class="drag-handle text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-move select-none">
+                                    ⋮⋮
+                                </div>
+                                <span class="text-sm font-medium flex-1">${habit.name}</span>
                                 <button
                                     onclick="tracker.markToday(${JSON.stringify(habit).replace(/"/g, '&quot;')})"
                                     class="px-3 py-1 border rounded text-xs transition-colors ${
@@ -618,6 +653,9 @@
 
                 html += '</div>';
                 quickMarkContent.innerHTML = html;
+                
+                // Setup drag and drop after rendering
+                this.setupDragAndDrop();
             }
 
             getCalendarDays() {
@@ -768,12 +806,103 @@
                 `;
 
                 calendarContent.innerHTML = html;
+                
+                // Setup drag and drop after rendering calendar
+                this.setupDragAndDrop();
             }
 
             getStatusSymbol(status) {
                 if (status === true) return 'X';
                 if (status === false) return 'O';
                 return '.';
+            }
+
+            // Drag & Drop methods
+            setupDragAndDrop() {
+                const quickMarkContent = document.getElementById('quickMarkContent');
+                if (!quickMarkContent) return;
+
+                const habitItems = quickMarkContent.querySelectorAll('.habit-item');
+                habitItems.forEach(item => {
+                    item.setAttribute('draggable', 'true');
+                    item.addEventListener('dragstart', (e) => this.handleDragStart(e));
+                    item.addEventListener('dragover', (e) => this.handleDragOver(e));
+                    item.addEventListener('drop', (e) => this.handleDrop(e));
+                    item.addEventListener('dragenter', (e) => this.handleDragEnter(e));
+                    item.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+                });
+            }
+
+            handleDragStart(e) {
+                this.draggedElement = e.target.closest('.habit-item');
+                if (this.draggedElement) {
+                    this.draggedElement.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/html', this.draggedElement.outerHTML);
+                }
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            }
+
+            handleDragEnter(e) {
+                e.preventDefault();
+                const targetItem = e.target.closest('.habit-item');
+                if (targetItem && targetItem !== this.draggedElement) {
+                    this.dragOverElement = targetItem;
+                    targetItem.classList.add('drag-over');
+                }
+            }
+
+            handleDragLeave(e) {
+                const targetItem = e.target.closest('.habit-item');
+                if (targetItem && targetItem !== this.draggedElement) {
+                    targetItem.classList.remove('drag-over');
+                }
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                const targetItem = e.target.closest('.habit-item');
+                
+                if (targetItem && this.draggedElement && targetItem !== this.draggedElement) {
+                    const draggedIndex = Array.from(this.draggedElement.parentNode.children).indexOf(this.draggedElement);
+                    const targetIndex = Array.from(targetItem.parentNode.children).indexOf(targetItem);
+                    
+                    // Reorder habits array
+                    const [draggedHabit] = this.habits.splice(draggedIndex, 1);
+                    this.habits.splice(targetIndex, 0, draggedHabit);
+                    
+                    // Save to Firebase
+                    this.saveHabits();
+                    
+                    // Re-render to show new order
+                    this.renderQuickMark();
+                    this.renderCalendar();
+                }
+                
+                // Clean up
+                if (this.draggedElement) {
+                    this.draggedElement.classList.remove('dragging');
+                    this.draggedElement = null;
+                }
+                if (this.dragOverElement) {
+                    this.dragOverElement.classList.remove('drag-over');
+                    this.dragOverElement = null;
+                }
+            }
+
+            reorderHabits(fromIndex, toIndex) {
+                if (fromIndex < 0 || fromIndex >= this.habits.length || 
+                    toIndex < 0 || toIndex >= this.habits.length) {
+                    return;
+                }
+                
+                const [movedHabit] = this.habits.splice(fromIndex, 1);
+                this.habits.splice(toIndex, 0, movedHabit);
+                this.saveHabits();
             }
         }
 
