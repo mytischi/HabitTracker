@@ -92,6 +92,19 @@
             opacity: 0.5;
             transform: rotate(5deg);
         }
+
+        /* Force left alignment for habit items */
+        .habit-item {
+            text-align: left !important;
+        }
+
+        .habit-item > * {
+            text-align: left !important;
+        }
+
+        .habit-item .drag-handle {
+            text-align: center !important;
+        }
     </style>
 </head>
 <body>
@@ -609,7 +622,7 @@
                     const weeklyProgress = this.getWeeklyProgress(habit);
                     
                     html += `
-                        <div class="habit-item flex flex-col items-center space-y-2 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-move hover:shadow-md transition-all duration-200" draggable="true">
+                        <div class="habit-item flex flex-col items-start space-y-2 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-move hover:shadow-md transition-all duration-200 text-left" draggable="true">
                             <!-- Drag handle and habit name -->
                             <div class="flex items-center space-x-3 w-full">
                                 <div class="drag-handle text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-move select-none">
@@ -629,8 +642,8 @@
                             </div>
                             
                             <!-- Weekly progress bar -->
-                            <div class="w-full max-w-xs">
-                                <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                            <div class="w-full">
+                                <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1 text-left">
                                     <span>Week: ${weeklyProgress.completed}/${weeklyProgress.total}</span>
                                     <span>${Math.round((weeklyProgress.completed / weeklyProgress.total) * 100)}%</span>
                                 </div>
