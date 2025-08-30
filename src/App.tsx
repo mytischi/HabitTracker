@@ -53,7 +53,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-white text-black' : 'bg-black text-white'}`}>
+    <div className={`min-h-screen ${isDarkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
       <div className="container mx-auto px-4 py-8">
         <Header 
           isDarkMode={isDarkMode} 

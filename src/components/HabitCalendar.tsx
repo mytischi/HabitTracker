@@ -15,6 +15,7 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
   onDeleteHabit
 }) => {
   const [isVisible, setIsVisible] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
 
   const getCalendarDays = (date: Date): CalendarDay[] => {
     const year = date.getFullYear();
@@ -101,8 +102,20 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
     return streak;
   };
 
-  const calendarDays = getCalendarDays(currentDate);
-  const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const changeMonth = (direction: 'prev' | 'next') => {
+    const newMonth = new Date(selectedMonth);
+    if (direction === 'prev') {
+      newMonth.setMonth(newMonth.getMonth() - 1);
+    } else {
+      newMonth.setMonth(newMonth.getMonth() + 1);
+    }
+    setSelectedMonth(newMonth);
+  };
+
+  const calendarDays = getCalendarDays(selectedMonth);
+  const monthName = selectedMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  
+
 
   if (habits.length === 0) {
     return (
@@ -143,85 +156,107 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
       
       {isVisible && (
         <>
-          <div className="mb-6 text-center">
+          {/* Month Navigation */}
+          <div className="flex justify-between items-center mb-6">
+            <button
+              onClick={() => changeMonth('prev')}
+              className="px-3 py-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded text-sm"
+            >
+              ← Previous
+            </button>
             <h3 className="text-lg font-bold">{monthName}</h3>
+            <button
+              onClick={() => changeMonth('next')}
+              className="px-3 py-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded text-sm"
+            >
+              Next →
+            </button>
           </div>
 
-          {/* Calendar Grid - Horizontal Layout */}
-          <div className="overflow-x-auto">
-            <div className="min-w-max">
-              {/* Header with habit names and streaks */}
-              <div className="grid grid-cols-8 gap-1 mb-2">
-                <div className="p-2 font-bold text-center text-sm">Date</div>
-                {habits.map(habit => {
-                  const streak = calculateStreak(habit);
-                  return (
-                    <div key={habit.id} className="p-2 text-center text-sm min-w-[100px]">
-                      <div className="font-bold mb-1">{habit.name}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+          {/* Individual Habit Calendars */}
+          <div className="space-y-6">
+            {habits.map(habit => {
+              const streak = calculateStreak(habit);
+              return (
+                <div key={habit.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                  {/* Habit Header */}
+                  <div className="flex justify-between items-center mb-3">
+                    <div className="flex items-center space-x-3">
+                      <h4 className="text-lg font-semibold">{habit.name}</h4>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         [*] {streak} day{streak !== 1 ? 's' : ''}
-                      </div>
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => markToday(habit)}
+                        className="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded"
+                      >
+                        Mark Today
+                      </button>
                       <button
                         onClick={() => onDeleteHabit(habit.id)}
-                        className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 px-2 py-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded"
                         title="Delete habit"
                       >
                         [X]
                       </button>
                     </div>
-                  );
-                })}
-              </div>
-
-              {/* Calendar days - Horizontal rows */}
-              {calendarDays.map((day, index) => (
-                <div key={index} className="grid grid-cols-8 gap-1">
-                  <div className={`p-1 text-center text-xs border-r border-gray-300 dark:border-gray-600 ${
-                    day.isToday ? 'font-bold bg-gray-400 dark:bg-gray-600' : ''
-                  } ${!day.isCurrentMonth ? 'opacity-50' : ''}`}>
-                    {day.dayOfMonth}
                   </div>
-                  {habits.map(habit => {
-                    const status = getHabitStatus(habit, day.date);
-                    return (
-                      <div key={habit.id} className="p-1 text-center border-r border-gray-300 dark:border-gray-600 min-w-[100px]">
-                        <button
-                          onClick={() => handleHabitClick(habit, day.date)}
-                          className={`w-6 h-6 flex items-center justify-center hover:bg-opacity-20 hover:bg-current transition-colors rounded ${
-                            getStatusColor(status)
-                          }`}
-                          disabled={!day.isCurrentMonth}
-                        >
-                          {getStatusSymbol(status)}
-                        </button>
+
+                  {/* Mini Calendar Grid */}
+                  <div className="grid grid-cols-7 gap-1 text-xs">
+                    {/* Day headers */}
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                      <div key={day} className="p-1 text-center font-medium text-gray-600 dark:text-gray-400">
+                        {day}
                       </div>
-                    );
-                  })}
+                    ))}
+                    
+                    {/* Calendar days */}
+                    {calendarDays.map((day, index) => {
+                      const status = getHabitStatus(habit, day.date);
+                      return (
+                        <div key={index} className="p-1 text-center">
+                          <button
+                            onClick={() => handleHabitClick(habit, day.date)}
+                            className={`w-6 h-6 flex items-center justify-center hover:bg-opacity-20 hover:bg-current transition-colors rounded text-xs ${
+                              getStatusColor(status)
+                            } ${
+                              day.isToday ? 'ring-2 ring-blue-500' : ''
+                            } ${
+                              !day.isCurrentMonth ? 'opacity-30' : ''
+                            }`}
+                            disabled={!day.isCurrentMonth}
+                            title={`${day.date.toLocaleDateString()}: ${status === true ? 'Completed' : status === false ? 'Failed' : 'Not marked'}`}
+                          >
+                            {day.dayOfMonth}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Status Legend for this habit */}
+                  <div className="mt-3 text-center text-xs text-gray-600 dark:text-gray-400">
+                    <span className="mr-4">
+                      <span className="text-black dark:text-white">X</span> Completed
+                    </span>
+                    <span className="mr-4">
+                      <span className="text-gray-600 dark:text-gray-400">O</span> Failed
+                    </span>
+                    <span>
+                      <span className="text-gray-400 dark:text-gray-600">.</span> Empty
+                    </span>
+                  </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
 
-          {/* Legend */}
-          <div className="mt-6 text-center text-sm">
-            <div className="flex justify-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <span className="text-black dark:text-white">X</span>
-                <span>Completed</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-600 dark:text-gray-400">O</span>
-                <span>Failed</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-400 dark:text-gray-600">.</span>
-                <span>Empty</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-600 dark:text-gray-400">[*]</span>
-                <span>Current Streak</span>
-              </div>
-            </div>
+          {/* General Legend */}
+          <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+            <p>Click on any date to mark/unmark completion. Today's date is highlighted with a blue ring.</p>
           </div>
         </>
       )}
