@@ -110,7 +110,7 @@
 <body>
     <div id="app" class="min-h-screen bg-white text-black">
         <!-- Auth Screen -->
-        <div id="authScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-black">
+        <div id="authScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-100 dark:from-gray-900 dark:to-black">
             <div class="auth-form p-8 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-md">
                 <div class="text-center mb-8">
                     <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Habit Tracker</h1>
@@ -121,32 +121,44 @@
                 <form id="loginForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-                        <input type="email" id="loginEmail" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        <input type="email" id="loginEmail" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
-                        <input type="password" id="loginPassword" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        <input type="password" id="loginPassword" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
                         Sign In
                     </button>
                 </form>
                 
                 <div class="text-center mt-6">
-                    <button id="showRegister" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm">
+                    <button id="showRegister" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm">
                         Don't have an account? Sign up
                     </button>
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <button 
+                            onclick="enableLocalModeGlobal()" 
+                            class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+                        >
+                            Use Local Mode (No Account Required)
+                        </button>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+                            Data will be saved only in this browser
+                        </p>
+                    </div>
                 </div>
                 
                 <!-- Register Form -->
                 <form id="registerForm" class="space-y-4 hidden">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-                        <input type="email" id="registerEmail" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        <input type="email" id="registerEmail" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
-                        <input type="password" id="registerPassword" required minlength="6" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        <input type="password" id="registerPassword" required minlength="6" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
                     </div>
                     <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
                         Create Account
@@ -154,7 +166,7 @@
                 </form>
                 
                 <div class="text-center mt-6">
-                    <button id="showLogin" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm hidden">
+                    <button id="showLogin" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm hidden">
                         Already have an account? Sign in
                     </button>
                 </div>
@@ -198,7 +210,7 @@
                     </div>
 
                     <!-- Habit Form - Below Quick Mark Today -->
-                    <div id="habitForm" class="border border-gray-300 p-6 rounded-lg">
+                    <div id="habitForm" class="hidden border border-gray-300 p-6 rounded-lg">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-xl font-bold">
                                 Add New Habit
@@ -268,9 +280,47 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        let auth, db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            console.log('Firebase initialized successfully');
+            
+            // Test Firebase connection
+            auth.onAuthStateChanged((user) => {
+                console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
+            });
+            
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            alert('Firebase не удалось инициализировать. Используйте локальный режим.');
+        }
+
+        // Global function for local mode (accessible before tracker is created)
+        function enableLocalModeGlobal() {
+            console.log('Enabling local mode globally...');
+            
+            // Hide auth screen and show main app
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            // Create and initialize tracker in local mode
+            if (!window.tracker) {
+                window.tracker = new MytischiTracker();
+            }
+            tracker.currentUser = { uid: 'local-user', email: 'local@example.com' };
+            tracker.loadHabitsLocal();
+            tracker.updateTime();
+            tracker.renderQuickMark();
+            tracker.renderCalendar();
+            setInterval(() => tracker.updateTime(), 1000);
+            
+            // Show notification
+            setTimeout(() => {
+                alert('Локальный режим активирован!\nВаши данные сохраняются только в этом браузере.');
+            }, 500);
+        }
 
         class MytischiTracker {
             constructor() {
@@ -356,10 +406,109 @@
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
                 
+                console.log('Attempting to sign in with email:', email);
+                
+                if (!email || !password) {
+                    alert('Пожалуйста, введите email и пароль');
+                    return;
+                }
+                
                 try {
-                    await auth.signInWithEmailAndPassword(email, password);
+                    console.log('Calling Firebase signInWithEmailAndPassword...');
+                    const result = await auth.signInWithEmailAndPassword(email, password);
+                    console.log('Sign in successful:', result.user.uid);
                 } catch (error) {
-                    alert('Sign in failed: ' + error.message);
+                    console.error('Firebase sign in error:', error);
+                    
+                    // Если Firebase недоступен, предлагаем локальный режим
+                    if (error.code === 'auth/network-request-failed' || 
+                        error.code === 'auth/app-not-authorized' ||
+                        error.message.includes('network') || 
+                        error.message.includes('fetch') ||
+                        error.message.includes('cors')) {
+                        
+                        const useLocal = confirm(
+                            'Firebase недоступен или не настроен. Хотите использовать локальный режим?\n\n' +
+                            'В локальном режиме данные сохраняются только в браузере.\n\n' +
+                            'Нажмите OK для локального режима или Отмена для повтора.'
+                        );
+                        
+                        if (useLocal) {
+                            this.enableLocalMode();
+                            return;
+                        }
+                    }
+                    
+                    alert('Ошибка входа: ' + error.message + '\n\nПопробуйте локальный режим или создайте новый аккаунт.');
+                }
+            }
+
+            enableLocalMode() {
+                console.log('Enabling local mode...');
+                this.currentUser = { uid: 'local-user', email: 'local@example.com' };
+                this.showMainApp();
+                this.loadHabitsLocal();
+                this.updateTime();
+                this.renderQuickMark();
+                this.renderCalendar();
+                setInterval(() => this.updateTime(), 1000);
+                
+                // Show notification
+                setTimeout(() => {
+                    alert('Локальный режим активирован!\nВаши данные сохраняются только в этом браузере.');
+                }, 500);
+            }
+
+            loadHabitsLocal() {
+                try {
+                    const savedHabits = localStorage.getItem('habits-local');
+                    if (savedHabits) {
+                        this.habits = JSON.parse(savedHabits);
+                    } else {
+                        this.habits = [];
+                    }
+                    this.renderQuickMark();
+                    this.renderCalendar();
+                } catch (error) {
+                    console.error('Error loading local habits:', error);
+                    this.habits = [];
+                }
+            }
+
+            async saveHabits() {
+                if (!this.currentUser) return;
+                
+                // If local mode, save to localStorage
+                if (this.currentUser.uid === 'local-user') {
+                    try {
+                        localStorage.setItem('habits-local', JSON.stringify(this.habits));
+                    } catch (error) {
+                        console.error('Error saving to localStorage:', error);
+                    }
+                    return;
+                }
+                
+                // Original Firebase save logic
+                try {
+                    const userRef = db.collection('users').doc(this.currentUser.uid);
+                    const habitsRef = userRef.collection('habits');
+                    
+                    // Clear existing habits
+                    const snapshot = await habitsRef.get();
+                    snapshot.forEach(doc => doc.ref.delete());
+                    
+                    // Add new habits
+                    for (const habit of this.habits) {
+                        await habitsRef.doc(habit.id).set({
+                            name: habit.name,
+                            createdAt: habit.createdAt,
+                            data: habit.data
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error saving habits to Firebase:', error);
+                    // Fallback to local storage
+                    localStorage.setItem('habits-local', JSON.stringify(this.habits));
                 }
             }
 
@@ -417,6 +566,12 @@
             async loadHabits() {
                 if (!this.currentUser) return;
                 
+                // If local mode, load from localStorage
+                if (this.currentUser.uid === 'local-user') {
+                    this.loadHabitsLocal();
+                    return;
+                }
+                
                 try {
                     const snapshot = await db.collection('users').doc(this.currentUser.uid).collection('habits').get();
                     this.habits = [];
@@ -429,7 +584,10 @@
                     this.renderQuickMark();
                     this.renderCalendar();
                 } catch (error) {
-                    console.error('Error loading habits:', error);
+                    console.error('Error loading habits from Firebase:', error);
+                    // Fallback to local mode
+                    console.log('Falling back to local storage...');
+                    this.loadHabitsLocal();
                 }
             }
 
@@ -580,6 +738,51 @@
                 this.renderCalendar();
             }
 
+
+
+            toggleQuickAddHabitForm() {
+                const formContent = document.getElementById('quickAddHabitFormContent');
+                const toggleBtn = document.getElementById('toggleQuickAddHabitBtn');
+                
+                if (formContent.classList.contains('hidden')) {
+                    formContent.classList.remove('hidden');
+                    toggleBtn.textContent = '×';
+                    toggleBtn.title = 'Cancel';
+                    // Focus on input field
+                    setTimeout(() => {
+                        document.getElementById('quickHabitName').focus();
+                    }, 100);
+                } else {
+                    formContent.classList.add('hidden');
+                    toggleBtn.textContent = '+';
+                    toggleBtn.title = 'Add new habit';
+                    // Clear input
+                    document.getElementById('quickHabitName').value = '';
+                }
+            }
+
+            async addHabitQuick() {
+                const input = document.getElementById('quickHabitName');
+                const habitName = input.value.trim();
+                
+                if (habitName) {
+                    const habit = {
+                        id: Date.now().toString(),
+                        name: habitName,
+                        createdAt: new Date().toISOString(),
+                        data: {}
+                    };
+                    
+                    this.habits.push(habit);
+                    await this.saveHabits();
+                    this.renderQuickMark();
+                    this.renderCalendar();
+                    
+                    // Close form and clear input
+                    this.toggleQuickAddHabitForm();
+                }
+            }
+
             calculateStreak(habit) {
                 const today = new Date();
                 let streak = 0;
@@ -678,11 +881,71 @@
                     `;
                 });
 
+                // Add new habit form at the end
+                html += `
+                    <!-- Add New Habit Form -->
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-3" style="border-style: dashed;">
+                        <div class="flex items-center space-x-3 w-full">
+                            <div class="text-gray-400 select-none">
+                                ⋮⋮
+                            </div>
+                            <span class="text-sm font-medium flex-1 text-left">Add New Habit</span>
+                            <button
+                                onclick="tracker.toggleQuickAddHabitForm()"
+                                id="toggleQuickAddHabitBtn"
+                                class="w-8 h-8 flex items-center justify-center text-xl text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                                title="Add new habit"
+                            >
+                                +
+                            </button>
+                        </div>
+                        
+                        <div id="quickAddHabitFormContent" class="hidden mt-3">
+                            <form id="quickHabitForm" class="space-y-3">
+                                <div>
+                                    <input
+                                        type="text"
+                                        id="quickHabitName"
+                                        class="w-full p-2 border border-gray-300 dark:border-gray-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-red-500 rounded text-sm dark:bg-gray-800 dark:text-white"
+                                        placeholder="Enter habit name (e.g., Morning exercise)"
+                                        maxlength="50"
+                                        required
+                                    />
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button
+                                        type="submit"
+                                        class="flex-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded transition-colors"
+                                    >
+                                        Add Habit
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onclick="tracker.toggleQuickAddHabitForm()"
+                                        class="px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                `;
+
                 html += '</div>';
                 quickMarkContent.innerHTML = html;
                 
                 // Setup drag and drop after rendering
                 this.setupDragAndDrop();
+                
+                // Setup quick form handler
+                const quickForm = document.getElementById('quickHabitForm');
+                if (quickForm) {
+                    quickForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.addHabitQuick();
+                    });
+                }
             }
 
             getCalendarDays() {
@@ -814,7 +1077,7 @@
                                 <button
                                     onclick="tracker.updateHabitProgress('${habit.id}', '${dateKey}', ${status === null ? 'true' : !status})"
                                     class="w-6 h-6 flex items-center justify-center hover:bg-opacity-20 hover:bg-current transition-colors rounded text-xs ${statusClass} ${
-                                        day.isToday ? 'ring-2 ring-blue-500' : ''
+                                        day.isToday ? 'ring-2 ring-red-500' : ''
                                     } ${
                                         !day.isCurrentMonth ? 'opacity-30' : ''
                                     }"
@@ -851,7 +1114,7 @@
 
                     <!-- General Legend -->
                     <div class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-                        <p>Click on any date to mark/unmark completion. Today's date is highlighted with a blue ring.</p>
+                        <p>Click on any date to mark/unmark completion. Today's date is highlighted with a red ring.</p>
                     </div>
                 `;
 
