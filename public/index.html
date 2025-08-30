@@ -137,17 +137,7 @@
                         Don't have an account? Sign up
                     </button>
                     
-                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                        <button 
-                            onclick="enableLocalModeGlobal()" 
-                            class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
-                        >
-                            Use Local Mode (No Account Required)
-                        </button>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                            Data will be saved only in this browser
-                        </p>
-                    </div>
+
                 </div>
                 
                 <!-- Register Form -->
@@ -294,33 +284,10 @@
             
         } catch (error) {
             console.error('Firebase initialization failed:', error);
-            alert('Firebase не удалось инициализировать. Используйте локальный режим.');
+            alert('Ошибка инициализации Firebase.\n\nПроверьте подключение к интернету и обновите страницу.');
         }
 
-        // Global function for local mode (accessible before tracker is created)
-        function enableLocalModeGlobal() {
-            console.log('Enabling local mode globally...');
-            
-            // Hide auth screen and show main app
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            
-            // Create and initialize tracker in local mode
-            if (!window.tracker) {
-                window.tracker = new MytischiTracker();
-            }
-            tracker.currentUser = { uid: 'local-user', email: 'local@example.com' };
-            tracker.loadHabitsLocal();
-            tracker.updateTime();
-            tracker.renderQuickMark();
-            tracker.renderCalendar();
-            setInterval(() => tracker.updateTime(), 1000);
-            
-            // Show notification
-            setTimeout(() => {
-                alert('Локальный режим активирован!\nВаши данные сохраняются только в этом браузере.');
-            }, 500);
-        }
+
 
         class MytischiTracker {
             constructor() {
@@ -332,6 +299,11 @@
                 this.currentUser = null;
                 this.draggedElement = null;
                 this.dragOverElement = null;
+                
+                // Переменные для оптимизации производительности
+                this.saveTimeout = null;
+                this.isUpdating = false;
+                this.pendingChanges = false;
                 
                 this.init();
             }
@@ -400,6 +372,14 @@
                 document.getElementById('toggleForm').addEventListener('click', () => {
                     this.toggleForm();
                 });
+
+                // Сохраняем при закрытии страницы
+                window.addEventListener('beforeunload', () => {
+                    if (this.pendingChanges) {
+                        // Синхронное сохранение при закрытии
+                        navigator.sendBeacon('/api/save', JSON.stringify(this.habits));
+                    }
+                });
             }
 
             async signIn() {
@@ -420,97 +400,30 @@
                 } catch (error) {
                     console.error('Firebase sign in error:', error);
                     
-                    // Если Firebase недоступен, предлагаем локальный режим
-                    if (error.code === 'auth/network-request-failed' || 
-                        error.code === 'auth/app-not-authorized' ||
-                        error.message.includes('network') || 
-                        error.message.includes('fetch') ||
-                        error.message.includes('cors')) {
-                        
-                        const useLocal = confirm(
-                            'Firebase недоступен или не настроен. Хотите использовать локальный режим?\n\n' +
-                            'В локальном режиме данные сохраняются только в браузере.\n\n' +
-                            'Нажмите OK для локального режима или Отмена для повтора.'
-                        );
-                        
-                        if (useLocal) {
-                            this.enableLocalMode();
-                            return;
-                        }
-                    }
-                    
-                    alert('Ошибка входа: ' + error.message + '\n\nПопробуйте локальный режим или создайте новый аккаунт.');
-                }
-            }
-
-            enableLocalMode() {
-                console.log('Enabling local mode...');
-                this.currentUser = { uid: 'local-user', email: 'local@example.com' };
-                this.showMainApp();
-                this.loadHabitsLocal();
-                this.updateTime();
-                this.renderQuickMark();
-                this.renderCalendar();
-                setInterval(() => this.updateTime(), 1000);
-                
-                // Show notification
-                setTimeout(() => {
-                    alert('Локальный режим активирован!\nВаши данные сохраняются только в этом браузере.');
-                }, 500);
-            }
-
-            loadHabitsLocal() {
-                try {
-                    const savedHabits = localStorage.getItem('habits-local');
-                    if (savedHabits) {
-                        this.habits = JSON.parse(savedHabits);
+                    let errorMessage = 'Ошибка входа: ';
+                    if (error.code === 'auth/invalid-credential') {
+                        errorMessage += 'Неверный email или пароль.\n\nПроверьте правильность введенных данных или создайте новый аккаунт.';
+                    } else if (error.code === 'auth/user-not-found') {
+                        errorMessage += 'Пользователь не найден.\n\nСоздайте новый аккаунт.';
+                    } else if (error.code === 'auth/wrong-password') {
+                        errorMessage += 'Неверный пароль.\n\nПроверьте правильность пароля.';
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMessage += 'Неверный формат email.';
+                    } else if (error.code === 'auth/network-request-failed') {
+                        errorMessage += 'Нет подключения к интернету.\n\nПроверьте подключение и попробуйте снова.';
+                    } else if (error.code === 'auth/too-many-requests') {
+                        errorMessage += 'Слишком много попыток входа.\n\nПодождите немного и попробуйте снова.';
                     } else {
-                        this.habits = [];
+                        errorMessage += error.message + '\n\nПроверьте данные или создайте новый аккаунт.';
                     }
-                    this.renderQuickMark();
-                    this.renderCalendar();
-                } catch (error) {
-                    console.error('Error loading local habits:', error);
-                    this.habits = [];
+                    
+                    alert(errorMessage);
                 }
             }
 
-            async saveHabits() {
-                if (!this.currentUser) return;
-                
-                // If local mode, save to localStorage
-                if (this.currentUser.uid === 'local-user') {
-                    try {
-                        localStorage.setItem('habits-local', JSON.stringify(this.habits));
-                    } catch (error) {
-                        console.error('Error saving to localStorage:', error);
-                    }
-                    return;
-                }
-                
-                // Original Firebase save logic
-                try {
-                    const userRef = db.collection('users').doc(this.currentUser.uid);
-                    const habitsRef = userRef.collection('habits');
-                    
-                    // Clear existing habits
-                    const snapshot = await habitsRef.get();
-                    snapshot.forEach(doc => doc.ref.delete());
-                    
-                    // Add new habits
-                    for (const habit of this.habits) {
-                        await habitsRef.doc(habit.id).set({
-                            name: habit.name,
-                            createdAt: habit.createdAt,
-                            data: habit.data
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error saving habits to Firebase:', error);
-                    // Fallback to local storage
-                    localStorage.setItem('habits-local', JSON.stringify(this.habits));
-                }
-            }
+
+
+
 
             async signUp() {
                 const email = document.getElementById('registerEmail').value;
@@ -519,12 +432,31 @@
                 try {
                     await auth.createUserWithEmailAndPassword(email, password);
                 } catch (error) {
-                    alert('Sign up failed: ' + error.message);
+                    console.error('Firebase sign up error:', error);
+                    
+                    let errorMessage = 'Ошибка регистрации: ';
+                    if (error.code === 'auth/email-already-in-use') {
+                        errorMessage += 'Этот email уже используется.\n\nВойдите в существующий аккаунт или используйте другой email.';
+                    } else if (error.code === 'auth/weak-password') {
+                        errorMessage += 'Слабый пароль.\n\nПароль должен содержать минимум 6 символов.';
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMessage += 'Неверный формат email.';
+                    } else if (error.code === 'auth/network-request-failed') {
+                        errorMessage += 'Нет подключения к интернету.\n\nПроверьте подключение и попробуйте снова.';
+                    } else {
+                        errorMessage += error.message;
+                    }
+                    
+                    alert(errorMessage);
                 }
             }
 
             async signOut() {
                 try {
+                    // Сохраняем все изменения перед выходом
+                    if (this.pendingChanges) {
+                        await this.saveHabits();
+                    }
                     await auth.signOut();
                 } catch (error) {
                     alert('Sign out failed: ' + error.message);
@@ -566,14 +498,10 @@
             async loadHabits() {
                 if (!this.currentUser) return;
                 
-                // If local mode, load from localStorage
-                if (this.currentUser.uid === 'local-user') {
-                    this.loadHabitsLocal();
-                    return;
-                }
+                console.log('Loading habits from Firebase for user:', this.currentUser.uid);
                 
                 try {
-                    const snapshot = await db.collection('users').doc(this.currentUser.uid).collection('habits').get();
+                    const snapshot = await db.collection('users').doc(this.currentUser.uid).collection('habits').orderBy('order', 'asc').get();
                     this.habits = [];
                     snapshot.forEach(doc => {
                         this.habits.push({
@@ -581,37 +509,93 @@
                             ...doc.data()
                         });
                     });
+                    
+                    console.log('Loaded habits from Firebase:', this.habits.map(h => ({name: h.name, order: h.order})));
+                    
+                    // Добавляем поле order для привычек, которые его не имеют
+                    let needsUpdate = false;
+                    this.habits.forEach((habit, index) => {
+                        if (habit.order === undefined) {
+                            habit.order = index;
+                            needsUpdate = true;
+                            console.log(`Added order ${index} to habit: ${habit.name}`);
+                        }
+                    });
+                    
+                    // Сохраняем, если добавили поля order
+                    if (needsUpdate) {
+                        this.scheduleSave();
+                    }
+                    
                     this.renderQuickMark();
                     this.renderCalendar();
                 } catch (error) {
                     console.error('Error loading habits from Firebase:', error);
-                    // Fallback to local mode
-                    console.log('Falling back to local storage...');
-                    this.loadHabitsLocal();
+                    alert('Ошибка загрузки привычек из Firebase: ' + error.message);
                 }
             }
 
+            // Отложенное сохранение для улучшения производительности
+            scheduleSave() {
+                this.pendingChanges = true;
+                
+                // Отменяем предыдущий таймер
+                if (this.saveTimeout) {
+                    clearTimeout(this.saveTimeout);
+                }
+                
+                // Устанавливаем новый таймер на 1 секунду
+                this.saveTimeout = setTimeout(() => {
+                    if (this.pendingChanges && !this.isUpdating) {
+                        this.saveHabits();
+                    }
+                }, 1000);
+            }
+
             async saveHabits() {
-                if (!this.currentUser) return;
+                if (!this.currentUser || this.isUpdating) return;
+                
+                this.isUpdating = true;
+                this.pendingChanges = false;
+                
+                console.log('Saving habits to Firebase:', this.habits.map(h => ({name: h.name, order: h.order})));
                 
                 try {
                     const userRef = db.collection('users').doc(this.currentUser.uid);
                     const habitsRef = userRef.collection('habits');
                     
-                    // Clear existing habits
-                    const snapshot = await habitsRef.get();
-                    snapshot.forEach(doc => doc.ref.delete());
+                    // Используем batch для более эффективного сохранения
+                    const batch = db.batch();
                     
-                    // Add new habits
-                    for (const habit of this.habits) {
-                        await habitsRef.doc(habit.id).set({
+                    // Удаляем старые записи
+                    const snapshot = await habitsRef.get();
+                    snapshot.forEach(doc => batch.delete(doc.ref));
+                    
+                    // Добавляем новые записи
+                    this.habits.forEach(habit => {
+                        const docRef = habitsRef.doc(habit.id);
+                        batch.set(docRef, {
                             name: habit.name,
                             createdAt: habit.createdAt,
+                            order: habit.order !== undefined ? habit.order : 0,
                             data: habit.data
                         });
-                    }
+                    });
+                    
+                    // Выполняем все операции одним запросом
+                    await batch.commit();
+                    
+                    console.log('Successfully saved to Firebase');
                 } catch (error) {
-                    console.error('Error saving habits:', error);
+                    console.error('Error saving habits to Firebase:', error);
+                    // Не показываем alert при каждой ошибке, только в консоль
+                } finally {
+                    this.isUpdating = false;
+                    
+                    // Если есть новые изменения, планируем еще одно сохранение
+                    if (this.pendingChanges) {
+                        this.scheduleSave();
+                    }
                 }
             }
 
@@ -687,11 +671,12 @@
                         id: Date.now().toString(),
                         name: habitName,
                         createdAt: new Date().toISOString(),
+                        order: this.habits.length, // Добавляем порядковый номер
                         data: {}
                     };
                     
                     this.habits.push(habit);
-                    await this.saveHabits();
+                    this.scheduleSave();
                     this.renderQuickMark();
                     this.renderCalendar();
                     
@@ -701,7 +686,7 @@
 
             async deleteHabit(habitId) {
                 this.habits = this.habits.filter(h => h.id !== habitId);
-                await this.saveHabits();
+                this.scheduleSave();
                 this.renderQuickMark();
                 this.renderCalendar();
             }
@@ -721,7 +706,7 @@
                 const habit = this.habits.find(h => h.id === habitId);
                 if (habit) {
                     habit.data[dateKey] = completed;
-                    await this.saveHabits();
+                    this.scheduleSave();
                     this.renderQuickMark();
                     this.renderCalendar();
                 }
@@ -781,11 +766,12 @@
                         id: Date.now().toString(),
                         name: habitName,
                         createdAt: new Date().toISOString(),
+                        order: this.habits.length, // Добавляем порядковый номер
                         data: {}
                     };
                     
                     this.habits.push(habit);
-                    await this.saveHabits();
+                    this.scheduleSave();
                     this.renderQuickMark();
                     this.renderCalendar();
                     
@@ -1189,18 +1175,33 @@
                     const draggedIndex = Array.from(this.draggedElement.parentNode.children).indexOf(this.draggedElement);
                     const targetIndex = Array.from(targetItem.parentNode.children).indexOf(targetItem);
                     
+                    // Исключаем последний элемент (форма добавления)
+                    if (targetIndex >= this.habits.length) {
+                        this.cleanupDrag();
+                        return;
+                    }
+                    
                     // Reorder habits array
                     const [draggedHabit] = this.habits.splice(draggedIndex, 1);
                     this.habits.splice(targetIndex, 0, draggedHabit);
                     
-                    // Save to Firebase
-                    this.saveHabits();
+                    // Обновляем порядковые номера
+                    this.habits.forEach((habit, index) => {
+                        habit.order = index;
+                    });
                     
-                    // Re-render to show new order
+                    // Отложенное сохранение вместо мгновенного
+                    this.scheduleSave();
+                    
+                    // Мгновенный перерендер для лучшего UX
                     this.renderQuickMark();
                     this.renderCalendar();
                 }
                 
+                this.cleanupDrag();
+            }
+
+            cleanupDrag() {
                 // Clean up
                 if (this.draggedElement) {
                     this.draggedElement.classList.remove('dragging');
@@ -1212,16 +1213,7 @@
                 }
             }
 
-            reorderHabits(fromIndex, toIndex) {
-                if (fromIndex < 0 || fromIndex >= this.habits.length || 
-                    toIndex < 0 || toIndex >= this.habits.length) {
-                    return;
-                }
-                
-                const [movedHabit] = this.habits.splice(fromIndex, 1);
-                this.habits.splice(toIndex, 0, movedHabit);
-                this.saveHabits();
-            }
+
         }
 
         // Initialize application
