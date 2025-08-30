@@ -706,6 +706,17 @@
                 this.renderCalendar();
             }
 
+            async deleteHabitWithConfirmation(habitId, habitName) {
+                const confirmed = confirm(
+                    `Вы уверены, что хотите удалить привычку "${habitName}"?\n\n` +
+                    `Это действие нельзя отменить. Все данные о прогрессе будут потеряны.`
+                );
+                
+                if (confirmed) {
+                    await this.deleteHabit(habitId);
+                }
+            }
+
             async updateHabitProgress(habitId, dateKey, completed) {
                 const habit = this.habits.find(h => h.id === habitId);
                 if (habit) {
@@ -1038,13 +1049,7 @@
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <button
-                                        onclick="tracker.markTodayForHabit('${habit.id}')"
-                                        class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded"
-                                    >
-                                        Mark Today
-                                    </button>
-                                    <button
-                                        onclick="tracker.deleteHabit('${habit.id}')"
+                                        onclick="tracker.deleteHabitWithConfirmation('${habit.id}', '${habit.name}')"
                                         class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 px-2 py-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded"
                                         title="Delete habit"
                                     >
