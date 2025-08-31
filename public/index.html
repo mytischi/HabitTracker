@@ -105,6 +105,88 @@
         .habit-item .drag-handle {
             text-align: center !important;
         }
+
+        /* Dropdown menu styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-radius: 6px;
+            z-index: 1000;
+            border: 1px solid #e5e7eb;
+        }
+
+        .dark .dropdown-content {
+            background-color: #374151;
+            border-color: #4b5563;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            color: #374151;
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dark .dropdown-item {
+            color: #d1d5db;
+            border-bottom-color: #4b5563;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .dark .dropdown-item:hover {
+            background-color: #4b5563;
+        }
+
+        .dropdown-item.danger {
+            color: #dc2626;
+        }
+
+        .dark .dropdown-item.danger {
+            color: #f87171;
+        }
+
+        .menu-button {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .menu-button:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .menu-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -378,6 +460,13 @@
                     if (this.pendingChanges) {
                         // Синхронное сохранение при закрытии
                         navigator.sendBeacon('/api/save', JSON.stringify(this.habits));
+                    }
+                });
+
+                // Закрываем выпадающие меню при клике вне их
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.dropdown')) {
+                        this.closeAllDropdowns();
                     }
                 });
             }
@@ -1034,13 +1123,23 @@
                                     </span>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <button
-                                        onclick="tracker.deleteHabitWithConfirmation('${habit.id}', '${habit.name}')"
-                                        class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 px-2 py-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded"
-                                        title="Delete habit"
-                                    >
-                                        [X]
-                                    </button>
+                                    <div class="dropdown">
+                                        <button
+                                            onclick="tracker.toggleDropdown('${habit.id}')"
+                                            class="menu-button text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                                            title="Меню привычки"
+                                        >
+                                            ⋯
+                                        </button>
+                                        <div id="dropdown-${habit.id}" class="dropdown-content">
+                                            <div class="dropdown-item" onclick="tracker.renameHabit('${habit.id}')">
+                                                📝 Переименовать
+                                            </div>
+                                            <div class="dropdown-item danger" onclick="tracker.deleteHabitWithConfirmation('${habit.id}', '${habit.name.replace(/'/g, "\\'")}')">
+                                                🗑️ Удалить
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1211,6 +1310,41 @@
                     this.dragOverElement.classList.remove('drag-over');
                     this.dragOverElement = null;
                 }
+            }
+
+            // Функции для работы с выпадающими меню
+            toggleDropdown(habitId) {
+                // Закрываем все остальные меню
+                this.closeAllDropdowns();
+                
+                // Открываем нужное меню
+                const dropdown = document.getElementById(`dropdown-${habitId}`);
+                if (dropdown) {
+                    dropdown.classList.toggle('show');
+                }
+            }
+
+            closeAllDropdowns() {
+                const dropdowns = document.querySelectorAll('.dropdown-content');
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+
+            // Функция переименования привычки
+            async renameHabit(habitId) {
+                const habit = this.habits.find(h => h.id === habitId);
+                if (!habit) return;
+
+                const newName = prompt('Введите новое название привычки:', habit.name);
+                if (newName && newName.trim() && newName.trim() !== habit.name) {
+                    habit.name = newName.trim();
+                    this.scheduleSave();
+                    this.renderQuickMark();
+                    this.renderCalendar();
+                }
+                
+                this.closeAllDropdowns();
             }
 
 
