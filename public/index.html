@@ -281,42 +281,6 @@
                         </div>
                     </div>
 
-                    <!-- Habit Form - Below Quick Mark Today -->
-                    <div id="habitForm" class="hidden border border-gray-300 p-6 rounded-lg">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-bold">
-                                Add New Habit
-                            </h2>
-                            <button id="toggleForm" class="px-3 py-1 border border-current hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded text-sm">
-                                [-] Hide
-                            </button>
-                        </div>
-                        
-                        <div id="formContent">
-                            <form id="habitFormElement" class="space-y-4">
-                                <div>
-                                    <label for="habitName" class="block mb-2">
-                                        Habit name:
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="habitName"
-                                        class="w-full p-3 border border-gray-300 bg-transparent focus:outline-none focus:ring-2 focus:ring-gray-500 rounded text-black"
-                                        placeholder="e.g., Morning exercise"
-                                        maxlength="50"
-                                        required
-                                    />
-                                </div>
-                                
-                                <button
-                                    type="submit"
-                                    class="w-full p-3 bg-black hover:bg-gray-800 text-white rounded transition-colors"
-                                >
-                                    [+] Add Habit
-                                </button>
-                            </form>
-                        </div>
-                    </div>
 
                     <!-- Habit Calendar - Bottom -->
                     <div id="habitCalendar" class="border border-gray-300 p-6 rounded-lg">
@@ -442,17 +406,8 @@
                     this.toggleTheme();
                 });
 
-                document.getElementById('habitFormElement').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.addHabit();
-                });
-
                 document.getElementById('toggleCalendar').addEventListener('click', () => {
                     this.toggleCalendar();
-                });
-
-                document.getElementById('toggleForm').addEventListener('click', () => {
-                    this.toggleForm();
                 });
 
                 // Сохраняем при закрытии страницы
@@ -574,21 +529,6 @@
             showMainApp() {
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
-                
-                // Показываем основную форму для новых пользователей
-                this.checkAndShowHabitForm();
-            }
-
-            checkAndShowHabitForm() {
-                // Если у пользователя нет привычек, показываем основную форму
-                setTimeout(() => {
-                    if (this.habits.length === 0) {
-                        const habitForm = document.getElementById('habitForm');
-                        if (habitForm) {
-                            habitForm.classList.remove('hidden');
-                        }
-                    }
-                }, 100); // Небольшая задержка, чтобы привычки успели загрузиться
             }
 
             showAuthScreen() {
@@ -633,7 +573,6 @@
                     
                     this.renderQuickMark();
                     this.renderCalendar();
-                    this.checkAndShowHabitForm(); // Проверяем, нужно ли показать форму
                 } catch (error) {
                     console.error('Error loading habits from Firebase:', error);
                     alert('Ошибка загрузки привычек из Firebase: ' + error.message);
@@ -754,40 +693,7 @@
                 this.renderCalendar();
             }
 
-            toggleForm() {
-                this.isFormVisible = !this.isFormVisible;
-                const toggleBtn = document.getElementById('toggleForm');
-                const formContent = document.getElementById('formContent');
-                toggleBtn.textContent = this.isFormVisible ? '[-] Hide' : '[+] Show';
-                
-                if (this.isFormVisible) {
-                    formContent.style.display = 'block';
-                } else {
-                    formContent.style.display = 'none';
-                }
-            }
 
-            async addHabit() {
-                const input = document.getElementById('habitName');
-                const habitName = input.value.trim();
-                
-                if (habitName) {
-                    const habit = {
-                        id: Date.now().toString(),
-                        name: habitName,
-                        createdAt: new Date().toISOString(),
-                        order: this.habits.length, // Добавляем порядковый номер
-                        data: {}
-                    };
-                    
-                    this.habits.push(habit);
-                    this.scheduleSave();
-                    this.renderQuickMark();
-                    this.renderCalendar();
-                    
-                    input.value = '';
-                }
-            }
 
             async deleteHabit(habitId) {
                 this.habits = this.habits.filter(h => h.id !== habitId);
@@ -928,11 +834,9 @@
                 const quickMarkContent = document.getElementById('quickMarkContent');
                 
                 if (this.habits.length === 0) {
-                    // Показываем сообщение и форму добавления для новых пользователей
+                    // Показываем только форму добавления для новых пользователей
                     quickMarkContent.innerHTML = `
                         <div class="space-y-3">
-                            <p class="text-lg opacity-60">No habits to track. Add your first habit below!</p>
-                            
                             <!-- Add New Habit Form -->
                             <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-3" style="border-style: dashed;">
                                 <div class="flex items-center space-x-3 w-full">
