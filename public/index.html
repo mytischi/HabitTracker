@@ -574,6 +574,21 @@
             showMainApp() {
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
+                
+                // Показываем основную форму для новых пользователей
+                this.checkAndShowHabitForm();
+            }
+
+            checkAndShowHabitForm() {
+                // Если у пользователя нет привычек, показываем основную форму
+                setTimeout(() => {
+                    if (this.habits.length === 0) {
+                        const habitForm = document.getElementById('habitForm');
+                        if (habitForm) {
+                            habitForm.classList.remove('hidden');
+                        }
+                    }
+                }, 100); // Небольшая задержка, чтобы привычки успели загрузиться
             }
 
             showAuthScreen() {
@@ -618,6 +633,7 @@
                     
                     this.renderQuickMark();
                     this.renderCalendar();
+                    this.checkAndShowHabitForm(); // Проверяем, нужно ли показать форму
                 } catch (error) {
                     console.error('Error loading habits from Firebase:', error);
                     alert('Ошибка загрузки привычек из Firebase: ' + error.message);
@@ -912,9 +928,70 @@
                 const quickMarkContent = document.getElementById('quickMarkContent');
                 
                 if (this.habits.length === 0) {
+                    // Показываем сообщение и форму добавления для новых пользователей
                     quickMarkContent.innerHTML = `
-                        <p class="text-lg opacity-60">No habits to track. Add your first habit below!</p>
+                        <div class="space-y-3">
+                            <p class="text-lg opacity-60">No habits to track. Add your first habit below!</p>
+                            
+                            <!-- Add New Habit Form -->
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-3" style="border-style: dashed;">
+                                <div class="flex items-center space-x-3 w-full">
+                                    <div class="text-gray-400 select-none">
+                                        ⋮⋮
+                                    </div>
+                                    <span class="text-sm font-medium flex-1 text-left">Add New Habit</span>
+                                    <button
+                                        onclick="tracker.toggleQuickAddHabitForm()"
+                                        id="toggleQuickAddHabitBtn"
+                                        class="w-8 h-8 flex items-center justify-center text-xl text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        title="Add new habit"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                                
+                                <div id="quickAddHabitFormContent" class="hidden mt-3">
+                                    <form id="quickHabitForm" class="space-y-3">
+                                        <div>
+                                            <input
+                                                type="text"
+                                                id="quickHabitName"
+                                                class="w-full p-2 border border-gray-300 dark:border-gray-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-red-500 rounded text-sm dark:bg-gray-800 dark:text-white"
+                                                placeholder="Enter habit name (e.g., Morning exercise)"
+                                                maxlength="50"
+                                                required
+                                            />
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button
+                                                type="submit"
+                                                class="flex-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded transition-colors"
+                                            >
+                                                Add Habit
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onclick="tracker.toggleQuickAddHabitForm()"
+                                                class="px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     `;
+                    
+                    // Setup quick form handler
+                    const quickForm = document.getElementById('quickHabitForm');
+                    if (quickForm) {
+                        quickForm.addEventListener('submit', (e) => {
+                            e.preventDefault();
+                            this.addHabitQuick();
+                        });
+                    }
+                    
                     return;
                 }
 
