@@ -1127,16 +1127,16 @@
                                         <button
                                             onclick="tracker.toggleDropdown('${habit.id}')"
                                             class="menu-button text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                                            title="Меню привычки"
+                                            title="Habit menu"
                                         >
                                             ⋯
                                         </button>
                                         <div id="dropdown-${habit.id}" class="dropdown-content">
                                             <div class="dropdown-item" onclick="tracker.renameHabit('${habit.id}')">
-                                                📝 Переименовать
+                                                Rename
                                             </div>
                                             <div class="dropdown-item danger" onclick="tracker.deleteHabitWithConfirmation('${habit.id}', '${habit.name.replace(/'/g, "\\'")}')">
-                                                🗑️ Удалить
+                                                Delete
                                             </div>
                                         </div>
                                     </div>
@@ -1314,14 +1314,20 @@
 
             // Функции для работы с выпадающими меню
             toggleDropdown(habitId) {
+                const dropdown = document.getElementById(`dropdown-${habitId}`);
+                if (!dropdown) return;
+                
+                // Если это меню уже открыто, закрываем его
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                    return;
+                }
+                
                 // Закрываем все остальные меню
                 this.closeAllDropdowns();
                 
                 // Открываем нужное меню
-                const dropdown = document.getElementById(`dropdown-${habitId}`);
-                if (dropdown) {
-                    dropdown.classList.toggle('show');
-                }
+                dropdown.classList.add('show');
             }
 
             closeAllDropdowns() {
