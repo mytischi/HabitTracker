@@ -716,7 +716,12 @@
             async updateHabitProgress(habitId, dateKey, completed) {
                 const habit = this.habits.find(h => h.id === habitId);
                 if (habit) {
-                    habit.data[dateKey] = completed;
+                    // Обрабатываем строку 'null' как null значение
+                    if (completed === 'null') {
+                        delete habit.data[dateKey]; // Удаляем ключ полностью
+                    } else {
+                        habit.data[dateKey] = completed;
+                    }
                     this.scheduleSave();
                     this.renderQuickMark();
                     this.renderCalendar();
@@ -725,9 +730,14 @@
 
             markToday(habit) {
                 const today = new Date();
-                const todayKey = today.toISOString().split('T')[0];
+                // Используем локальную дату вместо UTC для избежания проблем с часовыми поясами
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const todayKey = `${year}-${month}-${day}`;
+                
                 const currentStatus = habit.data[todayKey];
-                const newStatus = currentStatus === null ? true : !currentStatus;
+                const newStatus = currentStatus === true ? 'null' : true;
                 this.updateHabitProgress(habit.id, todayKey, newStatus);
             }
 
@@ -797,7 +807,7 @@
                 let currentDate = new Date(today);
                 
                 while (true) {
-                    const dateKey = currentDate.toISOString().split('T')[0];
+                    const dateKey = this.formatDateKey(currentDate);
                     const status = habit.data[dateKey];
                     
                     if (status === true) {
@@ -820,7 +830,13 @@
                 for (let i = 6; i >= 0; i--) {
                     const date = new Date(today);
                     date.setDate(date.getDate() - i);
-                    const dateKey = date.toISOString().split('T')[0];
+                    
+                    // Используем локальную дату вместо UTC
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const dateKey = `${year}-${month}-${day}`;
+                    
                     const status = habit.data[dateKey];
                     const isCompleted = status === true;
                     days.push(isCompleted);
@@ -902,7 +918,13 @@
                 let html = '<div class="space-y-3">';
                 
                 this.habits.forEach(habit => {
-                    const todayStatus = habit.data[new Date().toISOString().split('T')[0]];
+                    // Используем ту же логику формирования даты, что и в markToday
+                    const today = new Date();
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const day = String(today.getDate()).padStart(2, '0');
+                    const todayKey = `${year}-${month}-${day}`;
+                    const todayStatus = habit.data[todayKey];
                     const weeklyProgress = this.getWeeklyProgress(habit);
                     
                     html += `
@@ -1015,6 +1037,14 @@
                 }
             }
 
+            // Функция для правильного форматирования даты
+            formatDateKey(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
             getCalendarDays() {
                 const year = this.currentDate.getFullYear();
                 const month = this.currentDate.getMonth();
@@ -1022,11 +1052,16 @@
                 const firstDay = new Date(year, month, 1);
                 const lastDay = new Date(year, month + 1, 0);
                 
+                // Настраиваем начало недели с понедельника
                 const startDate = new Date(firstDay);
-                startDate.setDate(startDate.getDate() - firstDay.getDay());
+                const firstDayOfWeek = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                const daysFromMonday = (firstDayOfWeek + 6) % 7; // Сколько дней от понедельника
+                startDate.setDate(startDate.getDate() - daysFromMonday);
                 
                 const endDate = new Date(lastDay);
-                endDate.setDate(endDate.getDate() + (6 - lastDay.getDay()));
+                const lastDayOfWeek = lastDay.getDay();
+                const daysToSunday = (7 - lastDayOfWeek) % 7; // Сколько дней до воскресенья
+                endDate.setDate(endDate.getDate() + daysToSunday);
                 
                 const days = [];
                 const current = new Date(startDate);
@@ -1042,6 +1077,20 @@
                 }
                 
                 return days;
+            }
+
+            // Функция для определения стиля кнопки календаря
+            getCalendarButtonStyle(habit, currentDay) {
+                const dateKey = this.formatDateKey(currentDay.date);
+                const currentStatus = habit.data[dateKey];
+                
+                if (currentStatus === true) {
+                    // Выполненный день - используем цвета как в Quick Mark Today для не отмеченных дней
+                    return 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600';
+                } else {
+                    // Не отмеченный день - только обводка, без заливки
+                    return 'bg-transparent text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600';
+                }
             }
 
             renderCalendar() {
@@ -1093,6 +1142,7 @@
                 // Create separate calendar for each habit
                 this.habits.forEach(habit => {
                     const streak = this.calculateStreak(habit);
+                    
                     html += `
                         <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                             <!-- Habit Header -->
@@ -1100,7 +1150,7 @@
                                 <div class="flex items-center space-x-3">
                                     <h4 class="text-lg font-semibold">${habit.name}</h4>
                                     <span class="text-sm text-gray-600 dark:text-gray-400">
-                                        [*] ${streak} day${streak !== 1 ? 's' : ''}
+                                        ${streak} day${streak !== 1 ? 's' : ''} streak
                                     </span>
                                 </div>
                                 <div class="flex items-center space-x-2">
@@ -1127,33 +1177,31 @@
                             <!-- Mini Calendar Grid -->
                             <div class="grid grid-cols-7 gap-1 text-xs">
                                 <!-- Day headers -->
-                                <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Sun</div>
                                 <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Mon</div>
                                 <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Tue</div>
                                 <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Wed</div>
                                 <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Thu</div>
                                 <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Fri</div>
                                 <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Sat</div>
+                                <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Sun</div>
                 `;
 
                     // Calendar days for this habit
-                    calendarDays.forEach(day => {
-                        const dateKey = day.date.toISOString().split('T')[0];
+                    calendarDays.forEach((day, dayIndex) => {
+                        const dateKey = this.formatDateKey(day.date);
                         const status = habit.data[dateKey];
-                        const statusClass = status === true ? 'habit-status-completed' : 
-                                          status === false ? 'habit-status-failed' : 'habit-status-empty';
+                        const buttonStyle = this.getCalendarButtonStyle(habit, day);
+                        
+                        const todayRing = day.isToday ? 'ring-2 ring-blue-500' : '';
+                        const opacity = !day.isCurrentMonth ? 'opacity-30' : '';
                         
                         html += `
                             <div class="p-1 text-center">
                                 <button
-                                    onclick="tracker.updateHabitProgress('${habit.id}', '${dateKey}', ${status === null ? 'true' : !status})"
-                                    class="w-6 h-6 flex items-center justify-center hover:bg-opacity-20 hover:bg-current transition-colors rounded text-xs ${statusClass} ${
-                                        day.isToday ? 'ring-2 ring-red-500' : ''
-                                    } ${
-                                        !day.isCurrentMonth ? 'opacity-30' : ''
-                                    }"
+                                    onclick="tracker.updateHabitProgress('${habit.id}', '${dateKey}', ${status === true ? 'null' : 'true'})"
+                                    class="w-8 h-8 flex items-center justify-center transition-colors duration-200 rounded-lg border text-sm font-medium ${buttonStyle} ${todayRing} ${opacity} hover:shadow-md"
                                     ${!day.isCurrentMonth ? 'disabled' : ''}
-                                    title="${day.date.toLocaleDateString()}: ${status === true ? 'Completed' : status === false ? 'Failed' : 'Not marked'}"
+                                    title="${day.date.toLocaleDateString()}: ${status === true ? 'Completed' : 'Not marked'}"
                                 >
                                     ${day.dayOfMonth}
                                 </button>
@@ -1164,17 +1212,16 @@
                     html += `
                             </div>
 
-                            <!-- Status Legend for this habit -->
-                            <div class="mt-3 text-center text-xs text-gray-600 dark:text-gray-400">
-                                <span class="mr-4">
-                                    <span class="habit-status-completed">X</span> Completed
-                                </span>
-                                <span class="mr-4">
-                                    <span class="habit-status-failed">O</span> Failed
-                                </span>
-                                <span>
-                                    <span class="habit-status-empty">.</span> Empty
-                                </span>
+                            <!-- Calendar Legend -->
+                            <div class="mt-4 flex justify-center items-center space-x-6 text-xs">
+                                <div class="flex items-center space-x-1">
+                                    <div class="w-4 h-4 rounded-lg bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600"></div>
+                                    <span class="text-gray-600 dark:text-gray-400">Completed</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <div class="w-4 h-4 rounded-lg bg-transparent border border-gray-300 dark:border-gray-600"></div>
+                                    <span class="text-gray-600 dark:text-gray-400">Not marked</span>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1197,7 +1244,6 @@
 
             getStatusSymbol(status) {
                 if (status === true) return 'X';
-                if (status === false) return 'O';
                 return '.';
             }
 

@@ -8,7 +8,11 @@ interface QuickMarkTodayProps {
 
 const QuickMarkToday: React.FC<QuickMarkTodayProps> = ({ habits, onUpdateProgress }) => {
   const formatDateKey = (date: Date): string => {
-    return date.toISOString().split('T')[0];
+    // Используем локальную дату вместо UTC для избежания проблем с часовыми поясами
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const getHabitStatus = (habit: Habit, date: Date): boolean | null => {
@@ -26,7 +30,6 @@ const QuickMarkToday: React.FC<QuickMarkTodayProps> = ({ habits, onUpdateProgres
 
   const getStatusSymbol = (status: boolean | null): string => {
     if (status === true) return 'X';
-    if (status === false) return 'O';
     return '.';
   };
 

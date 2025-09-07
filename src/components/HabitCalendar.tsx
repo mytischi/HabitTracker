@@ -24,11 +24,16 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     
+    // Настраиваем начало недели с понедельника
     const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    const firstDayOfWeek = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const daysFromMonday = (firstDayOfWeek + 6) % 7; // Сколько дней от понедельника
+    startDate.setDate(startDate.getDate() - daysFromMonday);
     
     const endDate = new Date(lastDay);
-    endDate.setDate(endDate.getDate() + (6 - lastDay.getDay()));
+    const lastDayOfWeek = lastDay.getDay();
+    const daysToSunday = (7 - lastDayOfWeek) % 7; // Сколько дней до воскресенья
+    endDate.setDate(endDate.getDate() + daysToSunday);
     
     const days: CalendarDay[] = [];
     const current = new Date(startDate);
@@ -47,7 +52,11 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
   };
 
   const formatDateKey = (date: Date): string => {
-    return date.toISOString().split('T')[0];
+    // Используем локальную дату вместо UTC для избежания проблем с часовыми поясами
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const getHabitStatus = (habit: Habit, date: Date): boolean | null => {
@@ -58,7 +67,7 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
   const handleHabitClick = (habit: Habit, date: Date) => {
     const dateKey = formatDateKey(date);
     const currentStatus = getHabitStatus(habit, date);
-    const newStatus = currentStatus === null ? true : !currentStatus;
+    const newStatus = currentStatus === true ? null : true;
     onUpdateProgress(habit.id, dateKey, newStatus);
   };
 
@@ -66,20 +75,31 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
     const today = new Date();
     const todayKey = formatDateKey(today);
     const currentStatus = getHabitStatus(habit, today);
-    const newStatus = currentStatus === null ? true : !currentStatus;
+    const newStatus = currentStatus === true ? null : true;
     onUpdateProgress(habit.id, todayKey, newStatus);
   };
 
   const getStatusSymbol = (status: boolean | null): string => {
     if (status === true) return 'X';
-    if (status === false) return 'O';
     return '.';
   };
 
   const getStatusColor = (status: boolean | null): string => {
     if (status === true) return 'text-black dark:text-white';
-    if (status === false) return 'text-gray-600 dark:text-gray-400';
     return 'text-gray-400 dark:text-gray-600';
+  };
+
+  // Функция для определения стиля кнопки календаря
+  const getCalendarButtonStyle = (habit: Habit, currentDay: CalendarDay): string => {
+    const currentStatus = getHabitStatus(habit, currentDay.date);
+    
+    if (currentStatus === true) {
+      // Выполненный день - используем цвета как в Quick Mark Today для не отмеченных дней
+      return 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600';
+    } else {
+      // Не отмеченный день - только обводка, без заливки
+      return 'bg-transparent text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600';
+    }
   };
 
   const calculateStreak = (habit: Habit): number => {
@@ -184,7 +204,7 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
                     <div className="flex items-center space-x-3">
                       <h4 className="text-lg font-semibold">{habit.name}</h4>
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        [*] {streak} day{streak !== 1 ? 's' : ''}
+                        {streak} day{streak !== 1 ? 's' : ''} streak
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -207,7 +227,7 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
                   {/* Mini Calendar Grid */}
                   <div className="grid grid-cols-7 gap-1 text-xs">
                     {/* Day headers */}
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
                       <div key={day} className="p-1 text-center font-medium text-gray-600 dark:text-gray-400">
                         {day}
                       </div>
@@ -216,19 +236,18 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
                     {/* Calendar days */}
                     {calendarDays.map((day, index) => {
                       const status = getHabitStatus(habit, day.date);
+                      const buttonStyle = getCalendarButtonStyle(habit, day);
+                      
+                      const todayRing = day.isToday ? 'ring-2 ring-blue-500' : '';
+                      const opacity = !day.isCurrentMonth ? 'opacity-30' : '';
+                      
                       return (
                         <div key={index} className="p-1 text-center">
                           <button
                             onClick={() => handleHabitClick(habit, day.date)}
-                            className={`w-6 h-6 flex items-center justify-center hover:bg-opacity-20 hover:bg-current transition-colors rounded text-xs ${
-                              getStatusColor(status)
-                            } ${
-                              day.isToday ? 'ring-2 ring-blue-500' : ''
-                            } ${
-                              !day.isCurrentMonth ? 'opacity-30' : ''
-                            }`}
+                            className={`w-8 h-8 flex items-center justify-center transition-colors duration-200 rounded-lg border text-sm font-medium ${buttonStyle} ${todayRing} ${opacity} hover:shadow-md`}
                             disabled={!day.isCurrentMonth}
-                            title={`${day.date.toLocaleDateString()}: ${status === true ? 'Completed' : status === false ? 'Failed' : 'Not marked'}`}
+                            title={`${day.date.toLocaleDateString()}: ${status === true ? 'Completed' : 'Not marked'}`}
                           >
                             {day.dayOfMonth}
                           </button>
@@ -237,17 +256,16 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
                     })}
                   </div>
 
-                  {/* Status Legend for this habit */}
-                  <div className="mt-3 text-center text-xs text-gray-600 dark:text-gray-400">
-                    <span className="mr-4">
-                      <span className="text-black dark:text-white">X</span> Completed
-                    </span>
-                    <span className="mr-4">
-                      <span className="text-gray-600 dark:text-gray-400">O</span> Failed
-                    </span>
-                    <span>
-                      <span className="text-gray-400 dark:text-gray-600">.</span> Empty
-                    </span>
+                  {/* Calendar Legend */}
+                  <div className="mt-4 flex justify-center items-center space-x-6 text-xs">
+                    <div className="flex items-center space-x-1">
+                      <div className="w-4 h-4 rounded-lg bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600"></div>
+                      <span className="text-gray-600 dark:text-gray-400">Completed</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-4 h-4 rounded-lg bg-transparent border border-gray-300 dark:border-gray-600"></div>
+                      <span className="text-gray-600 dark:text-gray-400">Not marked</span>
+                    </div>
                   </div>
                 </div>
               );
