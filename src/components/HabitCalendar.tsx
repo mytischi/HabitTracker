@@ -182,14 +182,14 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
               onClick={() => changeMonth('prev')}
               className="px-3 py-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded text-sm"
             >
-              ← Previous
+              ←
             </button>
-            <h3 className="text-lg font-bold">{monthName}</h3>
+            <h3 className="text-lg font-bold text-center flex-1">{monthName}</h3>
             <button
               onClick={() => changeMonth('next')}
               className="px-3 py-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded text-sm"
             >
-              Next →
+              →
             </button>
           </div>
 
