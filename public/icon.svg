@@ -1,0 +1,40 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="#dc2626"/>
+  
+  <!-- Calendar icon -->
+  <rect x="128" y="160" width="256" height="224" rx="16" fill="white"/>
+  <rect x="128" y="160" width="256" height="48" rx="16" fill="#f3f4f6"/>
+  
+  <!-- Calendar header lines -->
+  <rect x="144" y="176" width="32" height="2" fill="#6b7280"/>
+  <rect x="200" y="176" width="32" height="2" fill="#6b7280"/>
+  <rect x="256" y="176" width="32" height="2" fill="#6b7280"/>
+  <rect x="312" y="176" width="32" height="2" fill="#6b7280"/>
+  
+  <!-- Calendar grid -->
+  <rect x="144" y="224" width="32" height="32" rx="4" fill="#10b981"/>
+  <rect x="200" y="224" width="32" height="32" rx="4" fill="#10b981"/>
+  <rect x="256" y="224" width="32" height="32" rx="4" fill="#10b981"/>
+  <rect x="312" y="224" width="32" height="32" rx="4" fill="#10b981"/>
+  
+  <rect x="144" y="272" width="32" height="32" rx="4" fill="#10b981"/>
+  <rect x="200" y="272" width="32" height="32" rx="4" fill="#10b981"/>
+  <rect x="256" y="272" width="32" height="32" rx="4" fill="#10b981"/>
+  <rect x="312" y="272" width="32" height="32" rx="4" fill="#10b981"/>
+  
+  <rect x="144" y="320" width="32" height="32" rx="4" fill="#10b981"/>
+  <rect x="200" y="320" width="32" height="32" rx="4" fill="#10b981"/>
+  <rect x="256" y="320" width="32" height="32" rx="4" fill="#10b981"/>
+  <rect x="312" y="320" width="32" height="32" rx="4" fill="#10b981"/>
+  
+  <!-- Checkmark in completed days -->
+  <path d="M152 240 L164 252 L176 228" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M208 240 L220 252 L232 228" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M264 240 L276 252 L288 228" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M320 240 L332 252 L344 228" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Plus icon for adding habits -->
+  <circle cx="400" cy="120" r="32" fill="white"/>
+  <path d="M388 120 L412 120 M400 108 L400 132" stroke="#dc2626" stroke-width="4" stroke-linecap="round"/>
+</svg>
