@@ -228,8 +228,10 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
                   <div className="grid grid-cols-7 gap-1 text-xs">
                     {/* Day headers */}
                     {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                      <div key={day} className="p-1 text-center font-medium text-gray-600 dark:text-gray-400">
-                        {day}
+                      <div key={day} className="p-1 text-center">
+                        <div className="w-8 h-8 flex items-center justify-center font-medium text-gray-600 dark:text-gray-400 text-xs">
+                          {day}
+                        </div>
                       </div>
                     ))}
                     
@@ -238,7 +240,7 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
                       const status = getHabitStatus(habit, day.date);
                       const buttonStyle = getCalendarButtonStyle(habit, day);
                       
-                      const todayRing = day.isToday ? 'ring-2 ring-blue-500' : '';
+                      const todayRing = day.isToday ? 'ring-2 ring-red-500' : '';
                       const opacity = !day.isCurrentMonth ? 'opacity-30' : '';
                       
                       return (

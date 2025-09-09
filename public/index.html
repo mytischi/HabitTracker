@@ -1177,13 +1177,27 @@
                             <!-- Mini Calendar Grid -->
                             <div class="grid grid-cols-7 gap-1 text-xs">
                                 <!-- Day headers -->
-                                <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Mon</div>
-                                <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Tue</div>
-                                <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Wed</div>
-                                <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Thu</div>
-                                <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Fri</div>
-                                <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Sat</div>
-                                <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">Sun</div>
+                                <div class="p-1 text-center">
+                                    <div class="w-8 h-8 flex items-center justify-center font-medium text-gray-600 dark:text-gray-400 text-xs">Mon</div>
+                                </div>
+                                <div class="p-1 text-center">
+                                    <div class="w-8 h-8 flex items-center justify-center font-medium text-gray-600 dark:text-gray-400 text-xs">Tue</div>
+                                </div>
+                                <div class="p-1 text-center">
+                                    <div class="w-8 h-8 flex items-center justify-center font-medium text-gray-600 dark:text-gray-400 text-xs">Wed</div>
+                                </div>
+                                <div class="p-1 text-center">
+                                    <div class="w-8 h-8 flex items-center justify-center font-medium text-gray-600 dark:text-gray-400 text-xs">Thu</div>
+                                </div>
+                                <div class="p-1 text-center">
+                                    <div class="w-8 h-8 flex items-center justify-center font-medium text-gray-600 dark:text-gray-400 text-xs">Fri</div>
+                                </div>
+                                <div class="p-1 text-center">
+                                    <div class="w-8 h-8 flex items-center justify-center font-medium text-gray-600 dark:text-gray-400 text-xs">Sat</div>
+                                </div>
+                                <div class="p-1 text-center">
+                                    <div class="w-8 h-8 flex items-center justify-center font-medium text-gray-600 dark:text-gray-400 text-xs">Sun</div>
+                                </div>
                 `;
 
                     // Calendar days for this habit
@@ -1192,7 +1206,7 @@
                         const status = habit.data[dateKey];
                         const buttonStyle = this.getCalendarButtonStyle(habit, day);
                         
-                        const todayRing = day.isToday ? 'ring-2 ring-blue-500' : '';
+                        const todayRing = day.isToday ? 'ring-2 ring-red-500' : '';
                         const opacity = !day.isCurrentMonth ? 'opacity-30' : '';
                         
                         html += `
