@@ -38,10 +38,16 @@ const QuickMarkToday: React.FC<QuickMarkTodayProps> = ({ habits, onUpdateProgres
     const days: boolean[] = [];
     let completed = 0;
     
-    // Get last 7 days
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
+    // Find Monday of current week
+    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const daysFromMonday = (currentDay + 6) % 7; // Convert to Monday = 0, Tuesday = 1, etc.
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - daysFromMonday);
+    
+    // Get 7 days starting from Monday
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
       const status = getHabitStatus(habit, date);
       const isCompleted = status === true;
       days.push(isCompleted);

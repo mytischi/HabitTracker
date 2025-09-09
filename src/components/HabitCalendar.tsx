@@ -179,17 +179,7 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
           {/* Month Navigation */}
           <div className="flex justify-between items-center mb-6">
             <button
-              onClick={() => changeMonth('prev')}
-              className="px-3 py-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded text-sm"
-            >
-              ←
-            </button>
-            <h3 className="text-lg font-bold text-center flex-1">{monthName}</h3>
-            <button
-              onClick={() => changeMonth('next')}
-              className="px-3 py-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded text-sm"
-            >
-              →
+Я помогу вам изменить отсчет недели в полоске прогресса Quick Mark Today, чтобы неделя начиналась с понедельника.              →
             </button>
           </div>
 
@@ -228,10 +218,8 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
                   <div className="grid grid-cols-7 gap-1 text-xs">
                     {/* Day headers */}
                     {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                      <div key={day} className="p-1 text-center">
-                        <div className="w-8 h-8 flex items-center justify-center font-medium text-gray-600 dark:text-gray-400 text-xs">
-                          {day}
-                        </div>
+                      <div key={day} className="p-1 text-center font-medium text-gray-600 dark:text-gray-400">
+                        {day}
                       </div>
                     ))}
                     
@@ -240,7 +228,7 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
                       const status = getHabitStatus(habit, day.date);
                       const buttonStyle = getCalendarButtonStyle(habit, day);
                       
-                      const todayRing = day.isToday ? 'ring-2 ring-red-500' : '';
+                      const todayRing = day.isToday ? 'ring-2 ring-blue-500' : '';
                       const opacity = !day.isCurrentMonth ? 'opacity-30' : '';
                       
                       return (
