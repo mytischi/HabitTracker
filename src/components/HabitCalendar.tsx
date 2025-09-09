@@ -228,7 +228,7 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
                       const status = getHabitStatus(habit, day.date);
                       const buttonStyle = getCalendarButtonStyle(habit, day);
                       
-                      const todayRing = day.isToday ? 'ring-2 ring-blue-500' : '';
+                      const todayRing = day.isToday ? 'ring-2 ring-red-500' : '';
                       const opacity = !day.isCurrentMonth ? 'opacity-30' : '';
                       
                       return (
