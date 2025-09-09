@@ -200,10 +200,10 @@ const HabitCalendar: React.FC<HabitCalendarProps> = ({
               return (
                 <div key={habit.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   {/* Habit Header */}
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="flex items-center space-x-3">
-                      <h4 className="text-lg font-semibold">{habit.name}</h4>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="w-2/3 pr-4">
+                      <h4 className="text-lg font-semibold text-left break-words">{habit.name}</h4>
+                      <span className="text-sm text-gray-600 dark:text-gray-400 block mt-1 text-left">
                         {streak} day{streak !== 1 ? 's' : ''} streak
                       </span>
                     </div>
