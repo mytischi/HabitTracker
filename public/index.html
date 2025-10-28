@@ -722,8 +722,8 @@
 
             async deleteHabitWithConfirmation(habitId, habitName) {
                 const confirmed = confirm(
-                    `Вы уверены, что хотите удалить привычку "${habitName}"?\n\n` +
-                    `Это действие нельзя отменить. Все данные о прогрессе будут потеряны.`
+                    `Are you sure you want to delete the habit "${habitName}"?\n\n` +
+                    `This action cannot be undone. All progress data will be lost.`
                 );
                 
                 if (confirmed) {
