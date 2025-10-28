@@ -268,6 +268,72 @@
             left: auto;
             min-width: 180px;
         }
+
+        /* Heat Map styles */
+        .heat-map-container {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .heat-map-grid {
+            display: grid;
+            grid-template-columns: repeat(53, 1fr);
+            gap: 2px;
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+
+        .heat-map-day {
+            aspect-ratio: 1;
+            width: 100%;
+            border-radius: 2px;
+            transition: opacity 0.3s;
+        }
+
+        .heat-map-day:hover {
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .heat-map-legend {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .heat-map-legend-labels {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .heat-map-legend-text {
+            font-size: 12px;
+        }
+
+        .heat-0 { background-color: #f1f1f1; }
+        .heat-1 { background-color: #d4e6f1; }
+        .heat-2 { background-color: #a9cce3; }
+        .heat-3 { background-color: #7fb3d3; }
+        .heat-4 { background-color: #5499c7; }
+        .heat-5 { background-color: #2980b9; }
+
+        .dark .heat-0 { background-color: #1a1a1a; }
+        .dark .heat-1 { background-color: #2d3339; }
+        .dark .heat-2 { background-color: #3e4752; }
+        .dark .heat-3 { background-color: #4f5c6b; }
+        .dark .heat-4 { background-color: #607084; }
+        .dark .heat-5 { background-color: #71849d; }
+
+        @media (max-width: 768px) {
+            .heat-map-grid {
+                grid-template-columns: repeat(26, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
@@ -374,6 +440,9 @@
                                 <div class="dropdown-item" onclick="tracker.goToPage('calendar')">
                                     Habit Calendar
                                 </div>
+                                <div class="dropdown-item" onclick="tracker.goToPage('heatMap')">
+                                    Heat Map
+                                </div>
                                 <div class="dropdown-item danger" onclick="tracker.signOut()">
                                     Sign Out
                                 </div>
@@ -400,6 +469,24 @@
                             <h2 class="text-xl font-bold mb-6 text-center">Habit Calendar</h2>
                             
                             <div id="calendarContent" class="text-center">
+                                <p class="text-lg">No habits to track. Add your first habit!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Heat Map Page -->
+                    <div id="heatMapPage" class="hidden">
+                        <div class="border border-gray-300 p-6 rounded-lg">
+                            <h2 class="text-xl font-bold mb-6 text-center">Heat Map</h2>
+                            
+                            <!-- Toggle Button -->
+                            <div class="mb-4">
+                                <button id="heatMapToggle" class="px-4 py-2 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded text-sm" onclick="tracker.toggleHeatMapPeriod()">
+                                    This Year
+                                </button>
+                            </div>
+                            
+                            <div id="heatMapContent" class="text-center">
                                 <p class="text-lg">No habits to track. Add your first habit!</p>
                             </div>
                         </div>
@@ -451,6 +538,7 @@
                 this.draggedElement = null;
                 this.dragOverElement = null;
                 this.currentPage = 'quickMark'; // Current page state
+                this.heatMapPeriod = 'year'; // Heat map period: 'year' or 'month'
                 
                 // Переменные для оптимизации производительности
                 this.saveTimeout = null;
@@ -1543,9 +1631,11 @@
                 // Hide all pages
                 const quickMarkPage = document.getElementById('quickMarkPage');
                 const calendarPage = document.getElementById('calendarPage');
+                const heatMapPage = document.getElementById('heatMapPage');
                 
                 if (quickMarkPage) quickMarkPage.classList.add('hidden');
                 if (calendarPage) calendarPage.classList.add('hidden');
+                if (heatMapPage) heatMapPage.classList.add('hidden');
                 
                 // Show current page
                 if (this.currentPage === 'quickMark') {
@@ -1554,6 +1644,9 @@
                 } else if (this.currentPage === 'calendar') {
                     if (calendarPage) calendarPage.classList.remove('hidden');
                     this.renderCalendar();
+                } else if (this.currentPage === 'heatMap') {
+                    if (heatMapPage) heatMapPage.classList.remove('hidden');
+                    this.renderHeatMap();
                 }
             }
 
@@ -1580,6 +1673,120 @@
                 } catch (error) {
                     alert('Sign out failed: ' + error.message);
                 }
+            }
+
+            // Heat Map rendering
+            renderHeatMap() {
+                const heatMapContent = document.getElementById('heatMapContent');
+                
+                if (this.habits.length === 0) {
+                    heatMapContent.innerHTML = `
+                        <p class="text-lg">
+                            No habits to track. Add your first habit!
+                        </p>
+                    `;
+                    return;
+                }
+
+                // Calculate date range based on period
+                const today = new Date();
+                let startDate;
+                
+                if (this.heatMapPeriod === 'year') {
+                    startDate = new Date(today);
+                    startDate.setFullYear(today.getFullYear() - 1);
+                } else {
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                }
+                
+                const activityMap = {};
+                let maxActivity = 0;
+
+                // Count activities per day across all habits
+                this.habits.forEach(habit => {
+                    Object.keys(habit.data).forEach(dateKey => {
+                        const date = new Date(dateKey + 'T00:00:00');
+                        if (date >= startDate && date <= today && habit.data[dateKey] === true) {
+                            if (!activityMap[dateKey]) {
+                                activityMap[dateKey] = 0;
+                            }
+                            activityMap[dateKey]++;
+                            maxActivity = Math.max(maxActivity, activityMap[dateKey]);
+                        }
+                    });
+                });
+
+                // Create heat map
+                const weeks = [];
+                let currentDate = new Date(startDate);
+                
+                // Adjust to Monday
+                const dayOfWeek = currentDate.getDay();
+                const daysFromMonday = (dayOfWeek + 6) % 7;
+                currentDate.setDate(currentDate.getDate() - daysFromMonday);
+
+                while (currentDate <= today) {
+                    const week = [];
+                    for (let i = 0; i < 7; i++) {
+                        const dateKey = this.formatDateKey(currentDate);
+                        const activity = activityMap[dateKey] || 0;
+                        week.push({ date: new Date(currentDate), activity });
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+                    weeks.push(week);
+                }
+
+                // Generate HTML
+                let html = `
+                    <div class="heat-map-container">
+                        <div class="heat-map-grid">
+                `;
+
+                weeks.forEach(week => {
+                    week.forEach(day => {
+                        const dateKey = this.formatDateKey(day.date);
+                        const level = Math.min(5, Math.floor((day.activity / maxActivity) * 5));
+                        const heatClass = `heat-${level}`;
+                        const isToday = day.date.toDateString() === today.toDateString();
+                        const todayClass = isToday ? 'ring-2 ring-red-500' : '';
+                        
+                        html += `
+                            <div 
+                                class="heat-map-day ${heatClass} ${todayClass}"
+                                title="${dateKey}: ${day.activity} habit(s) completed"
+                            ></div>
+                        `;
+                    });
+                });
+
+                html += `
+                        </div>
+                        <div class="heat-map-legend">
+                            <span class="heat-map-legend-text">Less</span>
+                            <div class="heat-map-legend-labels">
+                                <div class="heat-map-day heat-0" style="width: 12px; height: 12px;"></div>
+                                <div class="heat-map-day heat-1" style="width: 12px; height: 12px;"></div>
+                                <div class="heat-map-day heat-2" style="width: 12px; height: 12px;"></div>
+                                <div class="heat-map-day heat-3" style="width: 12px; height: 12px;"></div>
+                                <div class="heat-map-day heat-4" style="width: 12px; height: 12px;"></div>
+                                <div class="heat-map-day heat-5" style="width: 12px; height: 12px;"></div>
+                            </div>
+                            <span class="heat-map-legend-text">More</span>
+                        </div>
+                    </div>
+                `;
+
+                heatMapContent.innerHTML = html;
+            }
+
+            // Toggle heat map period
+            toggleHeatMapPeriod() {
+                this.heatMapPeriod = this.heatMapPeriod === 'year' ? 'month' : 'year';
+                const toggleBtn = document.getElementById('heatMapToggle');
+                if (toggleBtn) {
+                    toggleBtn.textContent = this.heatMapPeriod === 'year' ? 'This Year' : 'This Month';
+                }
+                this.renderHeatMap();
             }
 
 
