@@ -1736,45 +1736,116 @@
                     weeks.push(week);
                 }
 
-                // Generate HTML
-                let html = `
-                    <div class="heat-map-container">
-                        <div class="heat-map-grid">
-                `;
+                // Generate HTML based on period
+                let html = '';
+                
+                if (this.heatMapPeriod === 'month') {
+                    // Calendar-style for month view
+                    html = `
+                        <div class="grid grid-cols-7 gap-1 text-xs">
+                            <!-- Day headers -->
+                            <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">
+                                <div class="w-8 h-8 flex items-center justify-center">Mon</div>
+                            </div>
+                            <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">
+                                <div class="w-8 h-8 flex items-center justify-center">Tue</div>
+                            </div>
+                            <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">
+                                <div class="w-8 h-8 flex items-center justify-center">Wed</div>
+                            </div>
+                            <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">
+                                <div class="w-8 h-8 flex items-center justify-center">Thu</div>
+                            </div>
+                            <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">
+                                <div class="w-8 h-8 flex items-center justify-center">Fri</div>
+                            </div>
+                            <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">
+                                <div class="w-8 h-8 flex items-center justify-center">Sat</div>
+                            </div>
+                            <div class="p-1 text-center font-medium text-gray-600 dark:text-gray-400">
+                                <div class="w-8 h-8 flex items-center justify-center">Sun</div>
+                            </div>
+                    `;
 
-                weeks.forEach(week => {
-                    week.forEach(day => {
-                        const dateKey = this.formatDateKey(day.date);
-                        const level = Math.min(5, Math.floor((day.activity / maxActivity) * 5));
-                        const heatClass = `heat-${level}`;
-                        const isToday = day.date.toDateString() === today.toDateString();
-                        const todayClass = isToday ? 'ring-2 ring-red-500' : '';
-                        
-                        html += `
-                            <div 
-                                class="heat-map-day ${heatClass} ${todayClass}"
-                                title="${dateKey}: ${day.activity} habit(s) completed"
-                            ></div>
-                        `;
+                    weeks.forEach(week => {
+                        week.forEach(day => {
+                            const dateKey = this.formatDateKey(day.date);
+                            const level = Math.min(5, Math.floor((day.activity / Math.max(maxActivity, 1)) * 5));
+                            const heatClass = `heat-${level}`;
+                            const isToday = day.date.toDateString() === today.toDateString();
+                            const todayClass = isToday ? 'ring-2 ring-red-500' : '';
+                            const isCurrentMonth = day.date.getMonth() === today.getMonth();
+                            const opacity = !isCurrentMonth ? 'opacity-30' : '';
+                            
+                            html += `
+                                <div class="p-1 text-center">
+                                    <div 
+                                        class="w-8 h-8 flex items-center justify-center text-sm font-medium border rounded-lg transition-colors duration-200 ${heatClass} ${todayClass} ${opacity} hover:shadow-md"
+                                        title="${dateKey}: ${day.activity} habit(s) completed"
+                                    >
+                                        ${day.date.getDate()}
+                                    </div>
+                                </div>
+                            `;
+                        });
                     });
-                });
 
-                html += `
+                    html += `
                         </div>
-                        <div class="heat-map-legend">
+                        <div class="heat-map-legend mt-6">
                             <span class="heat-map-legend-text">Less</span>
                             <div class="heat-map-legend-labels">
-                                <div class="heat-map-day heat-0" style="width: 12px; height: 12px;"></div>
-                                <div class="heat-map-day heat-1" style="width: 12px; height: 12px;"></div>
-                                <div class="heat-map-day heat-2" style="width: 12px; height: 12px;"></div>
-                                <div class="heat-map-day heat-3" style="width: 12px; height: 12px;"></div>
-                                <div class="heat-map-day heat-4" style="width: 12px; height: 12px;"></div>
-                                <div class="heat-map-day heat-5" style="width: 12px; height: 12px;"></div>
+                                <div class="heat-map-day heat-0" style="width: 16px; height: 16px; border-radius: 4px;"></div>
+                                <div class="heat-map-day heat-1" style="width: 16px; height: 16px; border-radius: 4px;"></div>
+                                <div class="heat-map-day heat-2" style="width: 16px; height: 16px; border-radius: 4px;"></div>
+                                <div class="heat-map-day heat-3" style="width: 16px; height: 16px; border-radius: 4px;"></div>
+                                <div class="heat-map-day heat-4" style="width: 16px; height: 16px; border-radius: 4px;"></div>
+                                <div class="heat-map-day heat-5" style="width: 16px; height: 16px; border-radius: 4px;"></div>
                             </div>
                             <span class="heat-map-legend-text">More</span>
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    // Compact grid for year view
+                    html = `
+                        <div class="heat-map-container">
+                            <div class="heat-map-grid">
+                    `;
+
+                    weeks.forEach(week => {
+                        week.forEach(day => {
+                            const dateKey = this.formatDateKey(day.date);
+                            const level = Math.min(5, Math.floor((day.activity / Math.max(maxActivity, 1)) * 5));
+                            const heatClass = `heat-${level}`;
+                            const isToday = day.date.toDateString() === today.toDateString();
+                            const todayClass = isToday ? 'ring-2 ring-red-500' : '';
+                            
+                            html += `
+                                <div 
+                                    class="heat-map-day ${heatClass} ${todayClass}"
+                                    title="${dateKey}: ${day.activity} habit(s) completed"
+                                ></div>
+                            `;
+                        });
+                    });
+
+                    html += `
+                            </div>
+                            <div class="heat-map-legend">
+                                <span class="heat-map-legend-text">Less</span>
+                                <div class="heat-map-legend-labels">
+                                    <div class="heat-map-day heat-0" style="width: 12px; height: 12px;"></div>
+                                    <div class="heat-map-day heat-1" style="width: 12px; height: 12px;"></div>
+                                    <div class="heat-map-day heat-2" style="width: 12px; height: 12px;"></div>
+                                    <div class="heat-map-day heat-3" style="width: 12px; height: 12px;"></div>
+                                    <div class="heat-map-day heat-4" style="width: 12px; height: 12px;"></div>
+                                    <div class="heat-map-day heat-5" style="width: 12px; height: 12px;"></div>
+                                </div>
+                                <span class="heat-map-legend-text">More</span>
+                            </div>
+                        </div>
+                    `;
+                }
 
                 heatMapContent.innerHTML = html;
             }
