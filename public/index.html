@@ -205,9 +205,75 @@
         .dark .menu-button:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
+
+        /* Loading animation */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-indicator {
+            font-size: 24px;
+            font-family: monospace;
+            letter-spacing: 4px;
+        }
+
+        .loading-dot {
+            display: inline-block;
+            animation: loading 1.4s infinite;
+            animation-timing-function: ease-in-out;
+        }
+
+        .loading-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .loading-dot:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes loading {
+            0%, 80%, 100% {
+                opacity: 0.3;
+            }
+            40% {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen bg-white dark:bg-black">
+        <div class="loading-indicator text-black dark:text-white">
+            <span class="loading-dot">-</span>
+            <span class="loading-dot">-</span>
+            <span class="loading-dot">-</span>
+            <span class="loading-dot">-</span>
+        </div>
+    </div>
+
     <div id="app" class="min-h-screen bg-white text-black">
         <!-- Auth Screen -->
         <div id="authScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-100 dark:from-gray-900 dark:to-black">
@@ -373,9 +439,28 @@
             }
 
             init() {
+                // Hide loading screen after initialization
+                setTimeout(() => {
+                    this.hideLoading();
+                }, 500);
+                
                 this.setupAuthListeners();
                 this.setupEventListeners();
                 this.applyTheme();
+            }
+
+            showLoading() {
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.classList.remove('hidden');
+                }
+            }
+
+            hideLoading() {
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                }
             }
 
             setupAuthListeners() {
@@ -455,12 +540,18 @@
                     return;
                 }
                 
+                // Show loading screen
+                this.showLoading();
+                
                 try {
                     console.log('Calling Firebase signInWithEmailAndPassword...');
                     const result = await auth.signInWithEmailAndPassword(email, password);
                     console.log('Sign in successful:', result.user.uid);
                 } catch (error) {
                     console.error('Firebase sign in error:', error);
+                    
+                    // Hide loading screen on error
+                    this.hideLoading();
                     
                     let errorMessage = 'Ошибка входа: ';
                     if (error.code === 'auth/invalid-credential') {
@@ -547,6 +638,8 @@
             showMainApp() {
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
+                // Hide loading screen when switching to main app
+                this.hideLoading();
             }
 
             showAuthScreen() {
