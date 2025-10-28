@@ -261,6 +261,13 @@
                 opacity: 1;
             }
         }
+
+        /* User menu dropdown positioning */
+        #userMenuDropdown {
+            right: 0;
+            left: auto;
+            min-width: 180px;
+        }
     </style>
 </head>
 <body>
@@ -350,37 +357,53 @@
                         <button id="themeToggle" class="px-3 py-1 border border-current hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded text-sm">
                             [ ] Light
                         </button>
-                        <button id="signOutBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-sm">
-                            Sign Out
-                        </button>
+                        <!-- Dropdown Menu -->
+                        <div class="dropdown">
+                            <button
+                                id="userMenuBtn"
+                                class="menu-button px-3 py-1 border border-current hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded text-sm"
+                                onclick="tracker.toggleUserMenu()"
+                                title="User menu"
+                            >
+                                ⋮ ⋮ ⋮
+                            </button>
+                            <div id="userMenuDropdown" class="dropdown-content">
+                                <div class="dropdown-item" onclick="tracker.goToPage('quickMark')">
+                                    Quick Mark Today
+                                </div>
+                                <div class="dropdown-item" onclick="tracker.goToPage('calendar')">
+                                    Habit Calendar
+                                </div>
+                                <div class="dropdown-item danger" onclick="tracker.signOut()">
+                                    Sign Out
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </header>
 
-                <div class="mt-8 space-y-6">
-                    <!-- Quick Mark Today - Top -->
-                    <div id="quickMarkToday" class="border border-gray-300 p-4 rounded-lg mb-4">
-                        <h3 class="text-lg font-bold mb-3 text-center">Quick Mark Today</h3>
-                        <div id="quickMarkContent" class="text-center">
-                            <p class="text-lg opacity-60">No habits to track. Add your first habit below!</p>
+                <!-- Page Content -->
+                <div id="pageContent" class="mt-8">
+                    <!-- Quick Mark Today Page -->
+                    <div id="quickMarkPage" class="hidden">
+                        <div class="border border-gray-300 p-6 rounded-lg">
+                            <h3 class="text-xl font-bold mb-6 text-center">Quick Mark Today</h3>
+                            <div id="quickMarkContent" class="text-center">
+                                <p class="text-lg opacity-60">No habits to track. Add your first habit below!</p>
+                            </div>
                         </div>
                     </div>
 
-
-                    <!-- Habit Calendar - Bottom -->
-                    <div id="habitCalendar" class="border border-gray-300 p-6 rounded-lg">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-xl font-bold">
-                                Habit Calendar
-                            </h2>
-                            <button id="toggleCalendar" class="px-3 py-1 border border-current hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded text-sm">
-                                [-] Hide
-                            </button>
-                        </div>
-                        
-                        <div id="calendarContent" class="text-center">
-                            <p class="text-lg">
-                                No habits to track. Add your first habit above!
-                            </p>
+                    <!-- Habit Calendar Page -->
+                    <div id="calendarPage" class="hidden">
+                        <div class="border border-gray-300 p-6 rounded-lg">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-xl font-bold">Habit Calendar</h2>
+                            </div>
+                            
+                            <div id="calendarContent" class="text-center">
+                                <p class="text-lg">No habits to track. Add your first habit!</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -429,6 +452,7 @@
                 this.currentUser = null;
                 this.draggedElement = null;
                 this.dragOverElement = null;
+                this.currentPage = 'quickMark'; // Current page state
                 
                 // Переменные для оптимизации производительности
                 this.saveTimeout = null;
@@ -500,17 +524,9 @@
                     this.toggleAuthForms();
                 });
 
-                document.getElementById('signOutBtn').addEventListener('click', () => {
-                    this.signOut();
-                });
-
                 // App events
-                document.getElementById('themeToggle').addEventListener('click', () => {
+                document.getElementById('themeToggle')?.addEventListener('click', () => {
                     this.toggleTheme();
-                });
-
-                document.getElementById('toggleCalendar').addEventListener('click', () => {
-                    this.toggleCalendar();
                 });
 
                 // Сохраняем при закрытии страницы
@@ -526,6 +542,11 @@
                     if (!e.target.closest('.dropdown')) {
                         this.closeAllDropdowns();
                     }
+                });
+
+                // Handle clicks on user menu button
+                document.getElementById('userMenuBtn')?.addEventListener('click', (e) => {
+                    e.stopPropagation();
                 });
             }
 
@@ -640,6 +661,8 @@
                 document.getElementById('mainApp').classList.remove('hidden');
                 // Hide loading screen when switching to main app
                 this.hideLoading();
+                // Show the current page
+                this.renderPage();
             }
 
             showAuthScreen() {
@@ -1509,6 +1532,56 @@
                 }
                 
                 this.closeAllDropdowns();
+            }
+
+            // Page navigation methods
+            goToPage(pageName) {
+                this.currentPage = pageName;
+                this.renderPage();
+                this.closeAllDropdowns();
+            }
+
+            renderPage() {
+                // Hide all pages
+                const quickMarkPage = document.getElementById('quickMarkPage');
+                const calendarPage = document.getElementById('calendarPage');
+                
+                if (quickMarkPage) quickMarkPage.classList.add('hidden');
+                if (calendarPage) calendarPage.classList.add('hidden');
+                
+                // Show current page
+                if (this.currentPage === 'quickMark') {
+                    if (quickMarkPage) quickMarkPage.classList.remove('hidden');
+                    this.renderQuickMark();
+                } else if (this.currentPage === 'calendar') {
+                    if (calendarPage) calendarPage.classList.remove('hidden');
+                    this.renderCalendar();
+                }
+            }
+
+            // User menu methods
+            toggleUserMenu() {
+                const dropdown = document.getElementById('userMenuDropdown');
+                if (!dropdown) return;
+                
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                } else {
+                    this.closeAllDropdowns();
+                    dropdown.classList.add('show');
+                }
+            }
+
+            async signOut() {
+                try {
+                    if (this.pendingChanges) {
+                        await this.saveHabits();
+                    }
+                    await auth.signOut();
+                    this.closeAllDropdowns();
+                } catch (error) {
+                    alert('Sign out failed: ' + error.message);
+                }
             }
 
 
