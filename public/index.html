@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Habit Tracker</title>
-    
+
     <!-- PWA Meta Tags -->
     <meta name="description" content="Track your daily habits and build better routines">
     <meta name="theme-color" content="#000000">
@@ -13,10 +14,10 @@
     <meta name="apple-mobile-web-app-title" content="Habits">
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="msapplication-tap-highlight" content="no">
-    
+
     <!-- Manifest -->
     <link rel="manifest" href="/manifest.json">
-    
+
     <!-- Icons -->
     <link rel="icon" type="image/png" sizes="32x32" href="/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/icon-192x192.png">
@@ -38,36 +39,36 @@
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
-        
+
         .streak-counter {
             color: #6b7280;
             font-weight: 600;
         }
-        
+
         .habit-status-completed {
             color: #000000;
         }
-        
+
         .habit-status-failed {
             color: #6b7280;
         }
-        
+
         .habit-status-empty {
             color: #9ca3af;
         }
-        
+
         .dark .streak-counter {
             color: #9ca3af;
         }
-        
+
         .dark .habit-status-completed {
             color: #ffffff;
         }
-        
+
         .dark .habit-status-failed {
             color: #9ca3af;
         }
-        
+
         .dark .habit-status-empty {
             color: #6b7280;
         }
@@ -116,7 +117,7 @@
             text-align: left !important;
         }
 
-        .habit-item > * {
+        .habit-item>* {
             text-align: left !important;
         }
 
@@ -137,7 +138,7 @@
             top: 100%;
             background-color: white;
             min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
             border-radius: 6px;
             z-index: 1000;
             border: 1px solid #e5e7eb;
@@ -254,9 +255,13 @@
         }
 
         @keyframes loading {
-            0%, 80%, 100% {
+
+            0%,
+            80%,
+            100% {
                 opacity: 0.3;
             }
+
             40% {
                 opacity: 1;
             }
@@ -382,19 +387,53 @@
             opacity: 0.3;
         }
 
-        .heat-0 { background-color: #f1f1f1; }
-        .heat-1 { background-color: #d4e6f1; }
-        .heat-2 { background-color: #a9cce3; }
-        .heat-3 { background-color: #7fb3d3; }
-        .heat-4 { background-color: #5499c7; }
-        .heat-5 { background-color: #2980b9; }
+        .heat-0 {
+            background-color: #f1f1f1;
+        }
 
-        .dark .heat-0 { background-color: #1a1a1a; }
-        .dark .heat-1 { background-color: #2d3339; }
-        .dark .heat-2 { background-color: #3e4752; }
-        .dark .heat-3 { background-color: #4f5c6b; }
-        .dark .heat-4 { background-color: #607084; }
-        .dark .heat-5 { background-color: #71849d; }
+        .heat-1 {
+            background-color: #d4e6f1;
+        }
+
+        .heat-2 {
+            background-color: #a9cce3;
+        }
+
+        .heat-3 {
+            background-color: #7fb3d3;
+        }
+
+        .heat-4 {
+            background-color: #5499c7;
+        }
+
+        .heat-5 {
+            background-color: #2980b9;
+        }
+
+        .dark .heat-0 {
+            background-color: #1a1a1a;
+        }
+
+        .dark .heat-1 {
+            background-color: #2d3339;
+        }
+
+        .dark .heat-2 {
+            background-color: #3e4752;
+        }
+
+        .dark .heat-3 {
+            background-color: #4f5c6b;
+        }
+
+        .dark .heat-4 {
+            background-color: #607084;
+        }
+
+        .dark .heat-5 {
+            background-color: #71849d;
+        }
 
         /* Responsive layout for year heat map */
         @media (min-width: 768px) and (max-width: 1199px) {
@@ -408,7 +447,7 @@
                 grid-template-columns: repeat(2, 1fr);
                 gap: 16px;
             }
-            
+
             .month-calendar {
                 padding: 8px;
             }
@@ -416,13 +455,14 @@
             .month-header {
                 font-size: 12px;
             }
-            
+
             .heat-map-grid {
                 grid-template-columns: repeat(26, 1fr);
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Loading Screen -->
     <div id="loadingScreen" class="loading-screen bg-white dark:bg-black">
@@ -436,53 +476,63 @@
 
     <div id="app" class="min-h-screen bg-white text-black">
         <!-- Auth Screen -->
-        <div id="authScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-100 dark:from-gray-900 dark:to-black">
-            <div class="auth-form p-8 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-md">
+        <div id="authScreen"
+            class="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-100 dark:from-gray-900 dark:to-black">
+            <div
+                class="auth-form p-8 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-md">
                 <div class="text-center mb-8">
                     <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Habit Tracker</h1>
                     <p class="text-gray-600 dark:text-gray-400">Track your habits across all devices</p>
                 </div>
-                
+
                 <!-- Login Form -->
                 <form id="loginForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-                        <input type="email" id="loginEmail" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        <input type="email" id="loginEmail" required
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
-                        <input type="password" id="loginPassword" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        <input type="password" id="loginPassword" required
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
                     </div>
-                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                    <button type="submit"
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
                         Sign In
                     </button>
                 </form>
-                
+
                 <div class="text-center mt-6">
-                    <button id="showRegister" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm">
+                    <button id="showRegister"
+                        class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm">
                         Don't have an account? Sign up
                     </button>
-                    
+
 
                 </div>
-                
+
                 <!-- Register Form -->
                 <form id="registerForm" class="space-y-4 hidden">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-                        <input type="email" id="registerEmail" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        <input type="email" id="registerEmail" required
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
-                        <input type="password" id="registerPassword" required minlength="6" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        <input type="password" id="registerPassword" required minlength="6"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
                     </div>
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                    <button type="submit"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
                         Create Account
                     </button>
                 </form>
-                
+
                 <div class="text-center mt-6">
-                    <button id="showLogin" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm hidden">
+                    <button id="showLogin"
+                        class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm hidden">
                         Already have an account? Sign in
                     </button>
                 </div>
@@ -507,17 +557,15 @@
 
                     <!-- User Menu -->
                     <div class="flex items-center space-x-4">
-                        <button id="themeToggle" class="px-3 py-1 border border-current hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded text-sm">
+                        <button id="themeToggle"
+                            class="px-3 py-1 border border-current hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded text-sm">
                             [ ] Light
                         </button>
                         <!-- Dropdown Menu -->
                         <div class="dropdown">
-                            <button
-                                id="userMenuBtn"
+                            <button id="userMenuBtn"
                                 class="px-3 py-1 border border-current hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded text-sm"
-                                onclick="tracker.toggleUserMenu()"
-                                title="User menu"
-                            >
+                                onclick="tracker.toggleUserMenu()" title="User menu">
                                 ⋯
                             </button>
                             <div id="userMenuDropdown" class="dropdown-content">
@@ -530,8 +578,8 @@
                                 <div class="dropdown-item" onclick="tracker.goToPage('heatMap')">
                                     Heat Map
                                 </div>
-                                <div class="dropdown-item danger" onclick="tracker.signOut()">
-                                    Sign Out
+                                <div class="dropdown-item" onclick="tracker.goToPage('account')">
+                                    Account
                                 </div>
                             </div>
                         </div>
@@ -554,7 +602,7 @@
                     <div id="calendarPage" class="hidden">
                         <div class="border border-gray-300 p-6 rounded-lg">
                             <h2 class="text-xl font-bold mb-6 text-center">Habit Calendar</h2>
-                            
+
                             <div id="calendarContent" class="text-center">
                                 <p class="text-lg">No habits to track. Add your first habit!</p>
                             </div>
@@ -565,10 +613,58 @@
                     <div id="heatMapPage" class="hidden">
                         <div class="border border-gray-300 p-6 rounded-lg">
                             <h2 class="text-xl font-bold mb-6 text-center">Heat Map</h2>
-                            
+
                             <div id="heatMapContent" class="text-center">
                                 <p class="text-lg">No habits to track. Add your first habit!</p>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Page -->
+                    <div id="accountPage" class="hidden">
+                        <div class="border border-gray-300 p-6 rounded-lg max-w-md mx-auto">
+                            <h2 class="text-xl font-bold mb-6 text-center">Account Settings</h2>
+
+                            <div class="mb-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Email address</p>
+                                <p id="userEmailDisplay" class="font-medium">-</p>
+                            </div>
+
+                            <form id="changePasswordForm" class="space-y-4 mb-8">
+                                <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500">Change Password
+                                </h3>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current
+                                        Password</label>
+                                    <input type="password" id="oldPassword" required
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New
+                                        Password</label>
+                                    <input type="password" id="newPassword" required minlength="6"
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm
+                                        New Password</label>
+                                    <input type="password" id="confirmPassword" required minlength="6"
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                                </div>
+                                <button type="submit"
+                                    class="w-full bg-black dark:bg-white dark:text-black text-white font-medium py-3 px-4 rounded-lg transition-colors hover:opacity-90">
+                                    Update Password
+                                </button>
+                            </form>
+
+                            <hr class="border-gray-200 dark:border-gray-700 mb-8">
+
+                            <button onclick="tracker.signOut()"
+                                class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                                Sign Out
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -594,15 +690,15 @@
             auth = firebase.auth();
             db = firebase.firestore();
             console.log('Firebase initialized successfully');
-            
+
             // Test Firebase connection
             auth.onAuthStateChanged((user) => {
                 console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
             });
-            
+
         } catch (error) {
             console.error('Firebase initialization failed:', error);
-            alert('Ошибка инициализации Firebase.\n\nПроверьте подключение к интернету и обновите страницу.');
+            alert('Firebase initialization error.\n\nPlease check your internet connection and refresh the page.');
         }
 
 
@@ -618,12 +714,12 @@
                 this.draggedElement = null;
                 this.dragOverElement = null;
                 this.currentPage = 'quickMark'; // Current page state
-                
-                // Переменные для оптимизации производительности
+
+                // PERFORMANCE OPTIMIZATION VARIABLES
                 this.saveTimeout = null;
                 this.isUpdating = false;
                 this.pendingChanges = false;
-                
+
                 this.init();
             }
 
@@ -632,7 +728,7 @@
                 setTimeout(() => {
                     this.hideLoading();
                 }, 500);
-                
+
                 this.setupAuthListeners();
                 this.setupEventListeners();
                 this.applyTheme();
@@ -681,6 +777,11 @@
                     this.signUp();
                 });
 
+                document.getElementById('changePasswordForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.changePassword();
+                });
+
                 document.getElementById('showRegister').addEventListener('click', () => {
                     this.toggleAuthForms();
                 });
@@ -694,15 +795,15 @@
                     this.toggleTheme();
                 });
 
-                // Сохраняем при закрытии страницы
+                // Save on page close
                 window.addEventListener('beforeunload', () => {
                     if (this.pendingChanges) {
-                        // Синхронное сохранение при закрытии
+                        // Synchronous save on close
                         navigator.sendBeacon('/api/save', JSON.stringify(this.habits));
                     }
                 });
 
-                // Закрываем выпадающие меню при клике вне их
+                // Close dropdowns on outside click
                 document.addEventListener('click', (e) => {
                     if (!e.target.closest('.dropdown')) {
                         this.closeAllDropdowns();
@@ -718,44 +819,44 @@
             async signIn() {
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
-                
+
                 console.log('Attempting to sign in with email:', email);
-                
+
                 if (!email || !password) {
-                    alert('Пожалуйста, введите email и пароль');
+                    alert('Please enter email and password');
                     return;
                 }
-                
+
                 // Show loading screen
                 this.showLoading();
-                
+
                 try {
                     console.log('Calling Firebase signInWithEmailAndPassword...');
                     const result = await auth.signInWithEmailAndPassword(email, password);
                     console.log('Sign in successful:', result.user.uid);
                 } catch (error) {
                     console.error('Firebase sign in error:', error);
-                    
+
                     // Hide loading screen on error
                     this.hideLoading();
-                    
-                    let errorMessage = 'Ошибка входа: ';
+
+                    let errorMessage = 'Sign in error: ';
                     if (error.code === 'auth/invalid-credential') {
-                        errorMessage += 'Неверный email или пароль.\n\nПроверьте правильность введенных данных или создайте новый аккаунт.';
+                        errorMessage += 'Invalid email or password.\n\nPlease check your credentials or create a new account.';
                     } else if (error.code === 'auth/user-not-found') {
-                        errorMessage += 'Пользователь не найден.\n\nСоздайте новый аккаунт.';
+                        errorMessage += 'User not found.\n\nPlease create a new account.';
                     } else if (error.code === 'auth/wrong-password') {
-                        errorMessage += 'Неверный пароль.\n\nПроверьте правильность пароля.';
+                        errorMessage += 'Incorrect password.\n\nPlease try again.';
                     } else if (error.code === 'auth/invalid-email') {
-                        errorMessage += 'Неверный формат email.';
+                        errorMessage += 'Invalid email format.';
                     } else if (error.code === 'auth/network-request-failed') {
-                        errorMessage += 'Нет подключения к интернету.\n\nПроверьте подключение и попробуйте снова.';
+                        errorMessage += 'No internet connection.\n\nPlease check your connection and try again.';
                     } else if (error.code === 'auth/too-many-requests') {
-                        errorMessage += 'Слишком много попыток входа.\n\nПодождите немного и попробуйте снова.';
+                        errorMessage += 'Too many login attempts.\n\nPlease wait a moment and try again.';
                     } else {
-                        errorMessage += error.message + '\n\nПроверьте данные или создайте новый аккаунт.';
+                        errorMessage += error.message + '\n\nPlease check your data or create a new account.';
                     }
-                    
+
                     alert(errorMessage);
                 }
             }
@@ -767,32 +868,32 @@
             async signUp() {
                 const email = document.getElementById('registerEmail').value;
                 const password = document.getElementById('registerPassword').value;
-                
+
                 try {
                     await auth.createUserWithEmailAndPassword(email, password);
                 } catch (error) {
                     console.error('Firebase sign up error:', error);
-                    
-                    let errorMessage = 'Ошибка регистрации: ';
+
+                    let errorMessage = 'Registration error: ';
                     if (error.code === 'auth/email-already-in-use') {
-                        errorMessage += 'Этот email уже используется.\n\nВойдите в существующий аккаунт или используйте другой email.';
+                        errorMessage += 'This email is already in use.\n\nPlease log in to your existing account or use a different email.';
                     } else if (error.code === 'auth/weak-password') {
-                        errorMessage += 'Слабый пароль.\n\nПароль должен содержать минимум 6 символов.';
+                        errorMessage += 'Weak password.\n\nThe password must contain at least 6 characters.';
                     } else if (error.code === 'auth/invalid-email') {
-                        errorMessage += 'Неверный формат email.';
+                        errorMessage += 'Invalid email format.';
                     } else if (error.code === 'auth/network-request-failed') {
-                        errorMessage += 'Нет подключения к интернету.\n\nПроверьте подключение и попробуйте снова.';
+                        errorMessage += 'No internet connection.\n\nPlease check your connection and try again.';
                     } else {
                         errorMessage += error.message;
                     }
-                    
+
                     alert(errorMessage);
                 }
             }
 
             async signOut() {
                 try {
-                    // Сохраняем все изменения перед выходом
+                    // Save all changes before signing out
                     if (this.pendingChanges) {
                         await this.saveHabits();
                     }
@@ -807,7 +908,7 @@
                 const registerForm = document.getElementById('registerForm');
                 const showRegister = document.getElementById('showRegister');
                 const showLogin = document.getElementById('showLogin');
-                
+
                 if (loginForm.classList.contains('hidden')) {
                     loginForm.classList.remove('hidden');
                     registerForm.classList.add('hidden');
@@ -822,6 +923,7 @@
             }
 
             showMainApp() {
+                this.currentPage = 'quickMark';
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
                 // Hide loading screen when switching to main app
@@ -840,9 +942,9 @@
 
             async loadHabits() {
                 if (!this.currentUser) return;
-                
+
                 console.log('Loading habits from Firebase for user:', this.currentUser.uid);
-                
+
                 try {
                     const snapshot = await db.collection('users').doc(this.currentUser.uid).collection('habits').orderBy('order', 'asc').get();
                     this.habits = [];
@@ -852,10 +954,10 @@
                             ...doc.data()
                         });
                     });
-                    
-                    console.log('Loaded habits from Firebase:', this.habits.map(h => ({name: h.name, order: h.order})));
-                    
-                    // Добавляем поле order для привычек, которые его не имеют
+
+                    console.log('Loaded habits from Firebase:', this.habits.map(h => ({ name: h.name, order: h.order })));
+
+                    // Add order field to habits that don't have it
                     let needsUpdate = false;
                     this.habits.forEach((habit, index) => {
                         if (habit.order === undefined) {
@@ -864,30 +966,30 @@
                             console.log(`Added order ${index} to habit: ${habit.name}`);
                         }
                     });
-                    
-                    // Сохраняем, если добавили поля order
+
+                    // Save if order fields were added
                     if (needsUpdate) {
                         this.scheduleSave();
                     }
-                    
+
                     this.renderQuickMark();
                     this.renderCalendar();
                 } catch (error) {
                     console.error('Error loading habits from Firebase:', error);
-                    alert('Ошибка загрузки привычек из Firebase: ' + error.message);
+                    alert('Error loading habits from Firebase: ' + error.message);
                 }
             }
 
-            // Отложенное сохранение для улучшения производительности
+            // DEFERRED SAVE FOR PERFORMANCE OPTIMIZATION
             scheduleSave() {
                 this.pendingChanges = true;
-                
-                // Отменяем предыдущий таймер
+
+                // Cancel previous timer
                 if (this.saveTimeout) {
                     clearTimeout(this.saveTimeout);
                 }
-                
-                // Устанавливаем новый таймер на 1 секунду
+
+                // Set new timer for 1 second
                 this.saveTimeout = setTimeout(() => {
                     if (this.pendingChanges && !this.isUpdating) {
                         this.saveHabits();
@@ -897,23 +999,23 @@
 
             async saveHabits() {
                 if (!this.currentUser || this.isUpdating) return;
-                
+
                 this.isUpdating = true;
                 this.pendingChanges = false;
-                
-                console.log('Saving habits to Firebase:', this.habits.map(h => ({name: h.name, order: h.order})));
-                
+
+                console.log('Saving habits to Firebase:', this.habits.map(h => ({ name: h.name, order: h.order })));
+
                 try {
                     const userRef = db.collection('users').doc(this.currentUser.uid);
                     const habitsRef = userRef.collection('habits');
-                    
+
                     // Используем batch для более эффективного сохранения
                     const batch = db.batch();
-                    
+
                     // Удаляем старые записи
                     const snapshot = await habitsRef.get();
                     snapshot.forEach(doc => batch.delete(doc.ref));
-                    
+
                     // Добавляем новые записи
                     this.habits.forEach(habit => {
                         const docRef = habitsRef.doc(habit.id);
@@ -924,18 +1026,18 @@
                             data: habit.data
                         });
                     });
-                    
-                    // Выполняем все операции одним запросом
+
+                    // Commit all operations in one request
                     await batch.commit();
-                    
+
                     console.log('Successfully saved to Firebase');
                 } catch (error) {
                     console.error('Error saving habits to Firebase:', error);
-                    // Не показываем alert при каждой ошибке, только в консоль
+                    // Only log to console, don't show alert for every error
                 } finally {
                     this.isUpdating = false;
-                    
-                    // Если есть новые изменения, планируем еще одно сохранение
+
+                    // If there are new changes, schedule another save
                     if (this.pendingChanges) {
                         this.scheduleSave();
                     }
@@ -952,7 +1054,7 @@
                 const app = document.getElementById('app');
                 const themeToggle = document.getElementById('themeToggle');
                 const root = document.documentElement;
-                
+
                 if (this.isDarkMode) {
                     root.classList.add('dark');
                     app.classList.remove('bg-white', 'text-black');
@@ -970,13 +1072,13 @@
                 const now = new Date();
                 const timeElement = document.getElementById('currentTime');
                 const dateElement = document.getElementById('currentDate');
-                
+
                 timeElement.textContent = now.toLocaleTimeString('en-US', {
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit'
                 });
-                
+
                 dateElement.textContent = now.toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
@@ -1006,7 +1108,7 @@
                     `Are you sure you want to delete the habit "${habitName}"?\n\n` +
                     `This action cannot be undone. All progress data will be lost.`
                 );
-                
+
                 if (confirmed) {
                     await this.deleteHabit(habitId);
                 }
@@ -1015,9 +1117,9 @@
             async updateHabitProgress(habitId, dateKey, completed) {
                 const habit = this.habits.find(h => h.id === habitId);
                 if (habit) {
-                    // Обрабатываем строку 'null' как null значение
+                    // Handle 'null' string as null value
                     if (completed === 'null') {
-                        delete habit.data[dateKey]; // Удаляем ключ полностью
+                        delete habit.data[dateKey]; // Delete the key entirely
                     } else {
                         habit.data[dateKey] = completed;
                     }
@@ -1029,12 +1131,12 @@
 
             markToday(habit) {
                 const today = new Date();
-                // Используем локальную дату вместо UTC для избежания проблем с часовыми поясами
+                // Use local date instead of UTC to avoid timezone issues
                 const year = today.getFullYear();
                 const month = String(today.getMonth() + 1).padStart(2, '0');
                 const day = String(today.getDate()).padStart(2, '0');
                 const todayKey = `${year}-${month}-${day}`;
-                
+
                 const currentStatus = habit.data[todayKey];
                 const newStatus = currentStatus === true ? 'null' : true;
                 this.updateHabitProgress(habit.id, todayKey, newStatus);
@@ -1059,7 +1161,7 @@
             toggleQuickAddHabitForm() {
                 const formContent = document.getElementById('quickAddHabitFormContent');
                 const toggleBtn = document.getElementById('toggleQuickAddHabitBtn');
-                
+
                 if (formContent.classList.contains('hidden')) {
                     formContent.classList.remove('hidden');
                     toggleBtn.textContent = '×';
@@ -1080,21 +1182,21 @@
             async addHabitQuick() {
                 const input = document.getElementById('quickHabitName');
                 const habitName = input.value.trim();
-                
+
                 if (habitName) {
                     const habit = {
                         id: Date.now().toString(),
                         name: habitName,
                         createdAt: new Date().toISOString(),
-                        order: this.habits.length, // Добавляем порядковый номер
+                        order: this.habits.length, // Add order index
                         data: {}
                     };
-                    
+
                     this.habits.push(habit);
                     this.scheduleSave();
                     this.renderQuickMark();
                     this.renderCalendar();
-                    
+
                     // Close form and clear input
                     this.toggleQuickAddHabitForm();
                 }
@@ -1104,11 +1206,11 @@
                 const today = new Date();
                 let streak = 0;
                 let currentDate = new Date(today);
-                
+
                 while (true) {
                     const dateKey = this.formatDateKey(currentDate);
                     const status = habit.data[dateKey];
-                    
+
                     if (status === true) {
                         streak++;
                         currentDate.setDate(currentDate.getDate() - 1);
@@ -1116,7 +1218,7 @@
                         break;
                     }
                 }
-                
+
                 return streak;
             }
 
@@ -1124,38 +1226,38 @@
                 const today = new Date();
                 const days = [];
                 let completed = 0;
-                
+
                 // Find Monday of current week
                 const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
                 const daysFromMonday = (currentDay + 6) % 7; // Convert to Monday = 0, Tuesday = 1, etc.
                 const monday = new Date(today);
                 monday.setDate(today.getDate() - daysFromMonday);
-                
+
                 // Get 7 days starting from Monday
                 for (let i = 0; i < 7; i++) {
                     const date = new Date(monday);
                     date.setDate(monday.getDate() + i);
-                    
+
                     // Используем локальную дату вместо UTC
                     const year = date.getFullYear();
                     const month = String(date.getMonth() + 1).padStart(2, '0');
                     const day = String(date.getDate()).padStart(2, '0');
                     const dateKey = `${year}-${month}-${day}`;
-                    
+
                     const status = habit.data[dateKey];
                     const isCompleted = status === true;
                     days.push(isCompleted);
                     if (isCompleted) completed++;
                 }
-                
+
                 return { completed, total: 7, days };
             }
 
             renderQuickMark() {
                 const quickMarkContent = document.getElementById('quickMarkContent');
-                
+
                 if (this.habits.length === 0) {
-                    // Показываем только форму добавления для новых пользователей
+                    // Show only the add form for new users
                     quickMarkContent.innerHTML = `
                         <div class="space-y-3">
                             <!-- Add New Habit Form -->
@@ -1207,7 +1309,7 @@
                             </div>
                         </div>
                     `;
-                    
+
                     // Setup quick form handler
                     const quickForm = document.getElementById('quickHabitForm');
                     if (quickForm) {
@@ -1216,12 +1318,12 @@
                             this.addHabitQuick();
                         });
                     }
-                    
+
                     return;
                 }
 
                 let html = '<div class="space-y-3">';
-                
+
                 this.habits.forEach(habit => {
                     // Используем ту же логику формирования даты, что и в markToday
                     const today = new Date();
@@ -1231,7 +1333,7 @@
                     const todayKey = `${year}-${month}-${day}`;
                     const todayStatus = habit.data[todayKey];
                     const weeklyProgress = this.getWeeklyProgress(habit);
-                    
+
                     html += `
                         <div class="habit-item flex flex-col items-start space-y-2 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-move hover:shadow-md transition-all duration-200 text-left" draggable="true">
                             <!-- Drag handle and habit name -->
@@ -1242,11 +1344,10 @@
                                 <span class="text-sm font-medium flex-1">${habit.name}</span>
                                 <button
                                     onclick="tracker.markToday(${JSON.stringify(habit).replace(/"/g, '&quot;')})"
-                                    class="px-3 py-1 border rounded text-xs transition-colors ${
-                                        todayStatus === true 
-                                            ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white' 
-                                            : 'border-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'
-                                    }"
+                                    class="px-3 py-1 border rounded text-xs transition-colors ${todayStatus === true
+                            ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white'
+                            : 'border-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'
+                        }"
                                 >
                                     Today: ${this.getStatusSymbol(todayStatus)}
                                 </button>
@@ -1261,11 +1362,10 @@
                                 <div class="flex space-x-1">
                                     ${weeklyProgress.days.map((day, index) => `
                                         <div
-                                            class="flex-1 h-2 rounded ${
-                                                day 
-                                                    ? 'bg-black dark:bg-white' 
-                                                    : 'bg-gray-200 dark:bg-gray-700'
-                                            }"
+                                            class="flex-1 h-2 rounded ${day
+                                ? 'bg-black dark:bg-white'
+                                : 'bg-gray-200 dark:bg-gray-700'
+                            }"
                                             title="Day ${index + 1}: ${day ? 'Completed' : 'Not completed'}"
                                         ></div>
                                     `).join('')}
@@ -1328,10 +1428,10 @@
 
                 html += '</div>';
                 quickMarkContent.innerHTML = html;
-                
+
                 // Setup drag and drop after rendering
                 this.setupDragAndDrop();
-                
+
                 // Setup quick form handler
                 const quickForm = document.getElementById('quickHabitForm');
                 if (quickForm) {
@@ -1353,24 +1453,24 @@
             getCalendarDays() {
                 const year = this.currentDate.getFullYear();
                 const month = this.currentDate.getMonth();
-                
+
                 const firstDay = new Date(year, month, 1);
                 const lastDay = new Date(year, month + 1, 0);
-                
+
                 // Настраиваем начало недели с понедельника
                 const startDate = new Date(firstDay);
                 const firstDayOfWeek = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
                 const daysFromMonday = (firstDayOfWeek + 6) % 7; // Сколько дней от понедельника
                 startDate.setDate(startDate.getDate() - daysFromMonday);
-                
+
                 const endDate = new Date(lastDay);
                 const lastDayOfWeek = lastDay.getDay();
                 const daysToSunday = (7 - lastDayOfWeek) % 7; // Сколько дней до воскресенья
                 endDate.setDate(endDate.getDate() + daysToSunday);
-                
+
                 const days = [];
                 const current = new Date(startDate);
-                
+
                 while (current <= endDate) {
                     days.push({
                         date: new Date(current),
@@ -1380,7 +1480,7 @@
                     });
                     current.setDate(current.getDate() + 1);
                 }
-                
+
                 return days;
             }
 
@@ -1388,7 +1488,7 @@
             getCalendarButtonStyle(habit, currentDay) {
                 const dateKey = this.formatDateKey(currentDay.date);
                 const currentStatus = habit.data[dateKey];
-                
+
                 if (currentStatus === true) {
                     // Выполненный день - используем цвета как в Quick Mark Today для не отмеченных дней
                     return 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600';
@@ -1400,7 +1500,7 @@
 
             renderCalendar() {
                 const calendarContent = document.getElementById('calendarContent');
-                
+
                 if (this.habits.length === 0) {
                     calendarContent.innerHTML = `
                         <p class="text-lg">
@@ -1447,7 +1547,7 @@
                 // Create separate calendar for each habit
                 this.habits.forEach(habit => {
                     const streak = this.calculateStreak(habit);
-                    
+
                     html += `
                         <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                             <!-- Habit Header -->
@@ -1510,10 +1610,10 @@
                         const dateKey = this.formatDateKey(day.date);
                         const status = habit.data[dateKey];
                         const buttonStyle = this.getCalendarButtonStyle(habit, day);
-                        
+
                         const todayRing = day.isToday ? 'ring-2 ring-red-500' : '';
                         const opacity = !day.isCurrentMonth ? 'opacity-30' : '';
-                        
+
                         html += `
                             <div class="p-1 text-center">
                                 <button
@@ -1556,7 +1656,7 @@
                 `;
 
                 calendarContent.innerHTML = html;
-                
+
                 // Setup drag and drop after rendering calendar
                 this.setupDragAndDrop();
             }
@@ -1615,34 +1715,34 @@
             handleDrop(e) {
                 e.preventDefault();
                 const targetItem = e.target.closest('.habit-item');
-                
+
                 if (targetItem && this.draggedElement && targetItem !== this.draggedElement) {
                     const draggedIndex = Array.from(this.draggedElement.parentNode.children).indexOf(this.draggedElement);
                     const targetIndex = Array.from(targetItem.parentNode.children).indexOf(targetItem);
-                    
-                    // Исключаем последний элемент (форма добавления)
+
+                    // Exclude the last element (add form)
                     if (targetIndex >= this.habits.length) {
                         this.cleanupDrag();
                         return;
                     }
-                    
+
                     // Reorder habits array
                     const [draggedHabit] = this.habits.splice(draggedIndex, 1);
                     this.habits.splice(targetIndex, 0, draggedHabit);
-                    
+
                     // Обновляем порядковые номера
                     this.habits.forEach((habit, index) => {
                         habit.order = index;
                     });
-                    
+
                     // Отложенное сохранение вместо мгновенного
                     this.scheduleSave();
-                    
+
                     // Мгновенный перерендер для лучшего UX
                     this.renderQuickMark();
                     this.renderCalendar();
                 }
-                
+
                 this.cleanupDrag();
             }
 
@@ -1662,17 +1762,17 @@
             toggleDropdown(habitId) {
                 const dropdown = document.getElementById(`dropdown-${habitId}`);
                 if (!dropdown) return;
-                
-                // Если это меню уже открыто, закрываем его
+
+                // If this menu is already open, close it
                 if (dropdown.classList.contains('show')) {
                     dropdown.classList.remove('show');
                     return;
                 }
-                
-                // Закрываем все остальные меню
+
+                // Close all other menus
                 this.closeAllDropdowns();
-                
-                // Открываем нужное меню
+
+                // Open the requested menu
                 dropdown.classList.add('show');
             }
 
@@ -1683,19 +1783,19 @@
                 });
             }
 
-            // Функция переименования привычки
+            // HABIT RENAME FUNCTION
             async renameHabit(habitId) {
                 const habit = this.habits.find(h => h.id === habitId);
                 if (!habit) return;
 
-                const newName = prompt('Введите новое название привычки:', habit.name);
+                const newName = prompt('Enter new habit name:', habit.name);
                 if (newName && newName.trim() && newName.trim() !== habit.name) {
                     habit.name = newName.trim();
                     this.scheduleSave();
                     this.renderQuickMark();
                     this.renderCalendar();
                 }
-                
+
                 this.closeAllDropdowns();
             }
 
@@ -1711,11 +1811,13 @@
                 const quickMarkPage = document.getElementById('quickMarkPage');
                 const calendarPage = document.getElementById('calendarPage');
                 const heatMapPage = document.getElementById('heatMapPage');
-                
+                const accountPage = document.getElementById('accountPage');
+
                 if (quickMarkPage) quickMarkPage.classList.add('hidden');
                 if (calendarPage) calendarPage.classList.add('hidden');
                 if (heatMapPage) heatMapPage.classList.add('hidden');
-                
+                if (accountPage) accountPage.classList.add('hidden');
+
                 // Show current page
                 if (this.currentPage === 'quickMark') {
                     if (quickMarkPage) quickMarkPage.classList.remove('hidden');
@@ -1726,6 +1828,52 @@
                 } else if (this.currentPage === 'heatMap') {
                     if (heatMapPage) heatMapPage.classList.remove('hidden');
                     this.renderHeatMap();
+                } else if (this.currentPage === 'account') {
+                    if (accountPage) accountPage.classList.remove('hidden');
+                    this.renderAccount();
+                }
+            }
+
+            renderAccount() {
+                const userEmailDisplay = document.getElementById('userEmailDisplay');
+                if (userEmailDisplay && this.currentUser) {
+                    userEmailDisplay.textContent = this.currentUser.email;
+                }
+            }
+
+            async changePassword() {
+                const oldPassword = document.getElementById('oldPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (newPassword !== confirmPassword) {
+                    alert('Passwords do not match!');
+                    return;
+                }
+
+                if (!this.currentUser) return;
+
+                this.showLoading();
+                try {
+                    // RE-AUTHENTICATE USER BEFORE PASSWORD CHANGE
+                    const credential = firebase.auth.EmailAuthProvider.credential(this.currentUser.email, oldPassword);
+                    await this.currentUser.reauthenticateWithCredential(credential);
+
+                    // UPDATE PASSWORD
+                    await this.currentUser.updatePassword(newPassword);
+                    alert('Password updated successfully!');
+                    document.getElementById('changePasswordForm').reset();
+                } catch (error) {
+                    console.error('Password update error:', error);
+                    if (error.code === 'auth/wrong-password') {
+                        alert('Current password is incorrect.');
+                    } else if (error.code === 'auth/requires-recent-login') {
+                        alert('Security check failed. Please sign out and sign in again to update your password.');
+                    } else {
+                        alert('Error updating password: ' + error.message);
+                    }
+                } finally {
+                    this.hideLoading();
                 }
             }
 
@@ -1733,7 +1881,7 @@
             toggleUserMenu() {
                 const dropdown = document.getElementById('userMenuDropdown');
                 if (!dropdown) return;
-                
+
                 if (dropdown.classList.contains('show')) {
                     dropdown.classList.remove('show');
                 } else {
@@ -1757,7 +1905,7 @@
             // Heat Map rendering - shows all 12 months
             renderHeatMap() {
                 const heatMapContent = document.getElementById('heatMapContent');
-                
+
                 if (this.habits.length === 0) {
                     heatMapContent.innerHTML = `
                         <p class="text-lg">
@@ -1771,7 +1919,7 @@
                 today.setHours(23, 59, 59, 999);
                 const startDate = new Date(today.getFullYear(), 0, 1);
                 startDate.setHours(0, 0, 0, 0);
-                
+
                 const activityMap = {};
                 let maxActivity = 0;
 
@@ -1790,7 +1938,7 @@
                 });
 
                 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                                   'July', 'August', 'September', 'October', 'November', 'December'];
+                    'July', 'August', 'September', 'October', 'November', 'December'];
                 const dayNames = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
                 let html = '<div class="year-heat-map">';
@@ -1798,7 +1946,7 @@
                 // Generate all 12 months
                 for (let month = 0; month < 12; month++) {
                     const firstDay = new Date(today.getFullYear(), month, 1);
-                    
+
                     // Find the Monday of the week containing the first day
                     const dayOfWeek = firstDay.getDay();
                     const daysFromMonday = (dayOfWeek + 6) % 7;
@@ -1810,7 +1958,7 @@
                     let currentDate = new Date(startDateMonth);
                     let weekEnd = new Date(today.getFullYear(), month + 1, 0);
                     weekEnd.setHours(23, 59, 59, 999);
-                    
+
                     while (currentDate <= weekEnd) {
                         const week = [];
                         for (let i = 0; i < 7; i++) {
@@ -1827,7 +1975,7 @@
                             <div class="month-header">${monthNames[month]}</div>
                             <div class="month-grid">
                     `;
-                    
+
                     // Day headers
                     dayNames.forEach(dayName => {
                         html += `<div class="month-day-header">${dayName}</div>`;
@@ -1843,7 +1991,7 @@
                             const todayClass = isToday ? 'current-day' : '';
                             const isCurrentMonth = day.date.getMonth() === month;
                             const otherMonthClass = !isCurrentMonth ? 'other-month' : '';
-                            
+
                             html += `
                                 <div 
                                     class="month-day ${heatClass} ${todayClass} ${otherMonthClass}"
@@ -1883,7 +2031,7 @@
 
         // Initialize application
         const tracker = new MytischiTracker();
-        
+
         // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -1898,4 +2046,5 @@
         }
     </script>
 </body>
+
 </html>
