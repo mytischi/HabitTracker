@@ -1,6 +1,6 @@
 {
-  "name": "Habit Tracker",
-  "short_name": "Habits",
+  "name": "Ganbatte!",
+  "short_name": "Ganbatte!",
   "description": "Track your daily habits and build better routines",
   "start_url": "/",
   "display": "standalone",
@@ -28,7 +28,11 @@
       "type": "image/png"
     }
   ],
-  "categories": ["productivity", "lifestyle", "health"],
+  "categories": [
+    "productivity",
+    "lifestyle",
+    "health"
+  ],
   "screenshots": [
     {
       "src": "/screenshot-mobile.png",
